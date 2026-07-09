@@ -1,31 +1,28 @@
-﻿# PYNQ-Z1 DIANSAI2 AD9102 + AD9767 Overlay Report
+﻿# PYNQ-Z1 DIANSAI2 AD9767 Overlay Report
 
-Generated: 2026-07-09 14:57:17
+Generated: 2026-07-09 17:28:38
 
 ## Build Outputs
 
 | File | Status | Size | Modified |
 |---|---|---:|---|
-| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-09 14:57:06 |
-| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 190097 | 2026-07-09 14:53:28 |
-| `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 8186 | 2026-07-09 13:52:06 |
-| `pynq\lemon_pynqz1_ad9102.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 10742 | 2026-07-09 13:53:32 |
-| `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4905 | 2026-07-09 13:51:16 |
+| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-09 17:28:23 |
+| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 168431 | 2026-07-09 17:24:44 |
+| `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 6900 | 2026-07-09 17:23:35 |
+| `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4905 | 2026-07-09 17:22:49 |
 
 ## Address Map
 
 | IP | Base | High | PS access |
 |---|---:|---:|---|
-| `ad9102_ctrl_0` | `0x40001000` | `0x40001FFF` | direct `MMIO` |
-| `ad9767_ctrl_0` | `0x40002000` | `0x40002FFF` | direct `MMIO` |
+| `ad9767_ctrl_0` | `0x40001000` | `0x40001FFF` | direct `MMIO` |
 | `led_ctrl_0` | `0x40000000` | `0x40000FFF` | direct `MMIO` |
 
 Recommended direct bindings:
 
 ```python
 led_ip = MMIO(0x40000000, 0x1000)
-ad9102_ip = MMIO(0x40001000, 0x1000)
-ad9767_ip = MMIO(0x40002000, 0x1000)
+ad9767_ip = MMIO(0x40001000, 0x1000)
 ```
 
 ## AD9767 Register Contract
@@ -80,7 +77,7 @@ For the next performance-oriented revision, the internal DDS can be replaced by 
 Vivado timing summary line after implementation:
 
 ```text
-1.191        0.000                      0                 5401        0.040        0.000                      0                 5401        3.020        0.000                       0                  2094
+1.458        0.000                      0                 4650        0.034        0.000                      0                 4650        3.020        0.000                       0                  1839
 ```
 
 The build script fails if implemented WNS is negative.

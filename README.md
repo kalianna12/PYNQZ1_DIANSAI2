@@ -3,24 +3,20 @@
 Clean PYNQ-Z1 Vivado 2022.1 project for the C-problem wireless transmission
 signal simulator bring-up.
 
-This project is derived from the current known-good PYNQ-Z1 AD9102/board-IO
-overlay, then replaces the AD9226 ADC/DMA path with a PS-controlled AD9767
-waveform-output path.
+This project is a clean PYNQ-Z1 board-IO + AD9767 overlay. The older AD9102
+and AD9226 ADC/DMA paths are intentionally not present in the active design, so
+their former expansion-header pins can be used by AD9767.
 
 ## Hardware Blocks
 
 - `led_ctrl_0`
   - PS-controlled LD0..LD3, LD4/LD5 RGB, BTN0..BTN3.
   - Address target: `0x40000000`.
-- `ad9102_ctrl_0`
-  - Existing known-good AD9102 SPI/control interface.
-  - AD9102 pins and Python helper are kept unchanged.
-  - Address target: `0x40001000`.
 - `ad9767_ctrl_0`
   - New AD9767 dual-output signal generator.
   - Fixed output sample clock: 125 MSPS.
   - PS writes all user-facing parameters.
-  - Address target: `0x40002000`.
+  - Address target: `0x40001000`.
 
 ## C-Problem Control Targets
 
@@ -63,7 +59,7 @@ Already applied in this build:
 Latest implemented timing result:
 
 ```text
-WNS = 1.191 ns, TNS = 0.000 ns, WHS = 0.040 ns
+WNS = 1.458 ns, TNS = 0.000 ns, WHS = 0.034 ns
 ```
 
 The original post-route bottleneck was the AD9767 phase accumulator to BRAM LUT
@@ -87,22 +83,34 @@ Recommended next performance revision:
 - `scripts/Generate-VivadoOverlayReport.ps1`: build/address/register report.
 - `rtl/src/ad9767_signal_axi.v`: AD9767 AXI-Lite controlled signal generator.
 - `rtl/src/sine_lut_1024.v`: shared sine ROM.
-- `constraints/lemon_pynqz1_ad9767.xdc`: provisional AD9767 pinout.
+- `constraints/lemon_pynqz1_ad9767.xdc`: confirmed AD9767 P1/P2 pinout.
+- `docs/AD9767_PINOUT.md`: confirmed P1/P2 pin mapping and RTL port mapping.
 - `pynq/pynqz1_diansai2_ad9767.py`: PS-side AD9767 parameter helper.
-- `pynq/pynqz1_diansai2_ad9767_test.ipynb`: board, AD9102, AD9767 tests.
+- `pynq/pynqz1_diansai2_ad9767_test.ipynb`: board IO and AD9767 tests.
 - `legacy_reference/`: old AD9767 files that produced normal waveforms before.
 
-## Provisional AD9767 Pinout
+## AD9767 Pinout
 
-The first migration reuses the ADC-side right expansion header area. The actual
-AD9767 board wiring is expected to change after real hardware insertion, so keep
-pin edits isolated to:
+The current AD9767 wiring maps P1 to RTL channel A and P2 to RTL channel B:
+
+- P1: `P1_DB0..P1_DB13`, `CLK1`, `WRT1` -> `dac_a_data[0..13]`,
+  `dac_a_clk`, `dac_a_wrt`.
+- P2: `P2_DB0..P2_DB13`, `CLK2`, `WRT2` -> `dac_b_data[0..13]`,
+  `dac_b_clk`, `dac_b_wrt`.
+
+Keep pin edits isolated to:
 
 ```text
 constraints/lemon_pynqz1_ad9767.xdc
 ```
 
-AD9102 and board IO constraints should not be changed unless the wiring changes.
+The table form is documented in:
+
+```text
+docs/AD9767_PINOUT.md
+```
+
+Board IO constraints should not be changed unless the wiring changes.
 
 ## Build
 
@@ -136,9 +144,8 @@ Run cells in order:
 
 1. Load overlay and bind fixed MMIO addresses.
 2. Test LD0..LD3, RGB LEDs, and BTN0..BTN3.
-3. Smoke-test the unchanged AD9102 path.
-4. Configure AD9767 C-problem waveform parameters.
-5. Use the preset cell for manual oscilloscope tuning.
+3. Configure AD9767 C-problem waveform parameters.
+4. Use the preset cell for manual oscilloscope tuning.
 
 ## Notes For Next Hardware Pass
 

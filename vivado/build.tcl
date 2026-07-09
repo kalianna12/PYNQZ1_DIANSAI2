@@ -12,13 +12,11 @@ set external_board_repo_dir [file normalize "G:/FIREFOX下载/pynq-z1"]
 
 set rtl_src [list \
     [file join $root_dir rtl src led_ctrl_axi.v] \
-    [file join $root_dir rtl src ad9102_ctrl_axi.v] \
     [file join $root_dir rtl src sine_lut_1024.v] \
     [file join $root_dir rtl src ad9767_signal_axi.v] \
 ]
 set sine_mem [file join $root_dir rtl src sine_lut_1024x14.mem]
 set board_io_xdc [file join $root_dir constraints lemon_pynqz1_board_io.xdc]
-set ad9102_xdc [file join $root_dir constraints lemon_pynqz1_ad9102.xdc]
 set ad9767_xdc [file join $root_dir constraints lemon_pynqz1_ad9767.xdc]
 
 file mkdir $build_dir
@@ -47,7 +45,6 @@ if {[file exists $sine_mem]} {
     add_files -fileset sources_1 -norecurse $sine_mem
 }
 add_files -fileset constrs_1 -norecurse $board_io_xdc
-add_files -fileset constrs_1 -norecurse $ad9102_xdc
 add_files -fileset constrs_1 -norecurse $ad9767_xdc
 update_ip_catalog
 
@@ -64,12 +61,10 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 \
     [get_bd_cells processing_system7_0]
 
 create_bd_cell -type module -reference led_ctrl_axi led_ctrl_0
-create_bd_cell -type module -reference ad9102_ctrl_axi ad9102_ctrl_0
 create_bd_cell -type module -reference ad9767_signal_axi ad9767_ctrl_0
 
 foreach axi_target {
     led_ctrl_0/S_AXI
-    ad9102_ctrl_0/S_AXI
     ad9767_ctrl_0/S_AXI
 } {
     set axi_pin [get_bd_intf_pins -quiet $axi_target]
@@ -103,22 +98,6 @@ foreach ext_pair {
     }
 }
 
-foreach ad9102_pin_name {
-    ad9102_cs_n
-    ad9102_sdo
-    ad9102_sdio
-    ad9102_sclk
-    ad9102_clk_cmos_in
-    ad9102_trigger_n
-    ad9102_reset_n
-} {
-    make_bd_pins_external [get_bd_pins ad9102_ctrl_0/$ad9102_pin_name]
-    set generated_port [get_bd_ports -quiet "${ad9102_pin_name}_0"]
-    if {[llength $generated_port] != 0} {
-        set_property name $ad9102_pin_name $generated_port
-    }
-}
-
 foreach ad9767_pin_name {
     dac_a_data
     dac_a_clk
@@ -142,7 +121,6 @@ if {[llength $fclk0_pin] == 0} {
 
 foreach clk_target {
     led_ctrl_0/S_AXI_ACLK
-    ad9102_ctrl_0/S_AXI_ACLK
     ad9767_ctrl_0/S_AXI_ACLK
     ad9767_ctrl_0/dac_clk
 } {
@@ -161,7 +139,6 @@ set resetn_pin [lindex $resetn_pin 0]
 
 foreach rst_target {
     led_ctrl_0/S_AXI_ARESETN
-    ad9102_ctrl_0/S_AXI_ARESETN
     ad9767_ctrl_0/S_AXI_ARESETN
     ad9767_ctrl_0/dac_resetn
 } {

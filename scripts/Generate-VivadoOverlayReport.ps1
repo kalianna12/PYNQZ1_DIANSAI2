@@ -41,7 +41,7 @@ if (Test-Path $Hwh) {
     $mods = $xml.SelectNodes("//*[local-name()='MODULE']")
     foreach ($m in $mods) {
         $name = $m.GetAttribute("INSTANCE")
-        if ($name -match "led_ctrl_0|ad9102_ctrl_0|ad9767_ctrl_0") {
+        if ($name -match "led_ctrl_0|ad9767_ctrl_0") {
             $baseParam = $m.SelectSingleNode(".//*[local-name()='PARAMETER'][@NAME='C_BASEADDR']")
             $highParam = $m.SelectSingleNode(".//*[local-name()='PARAMETER'][@NAME='C_HIGHADDR']")
             if (($baseParam -ne $null) -and ($highParam -ne $null)) {
@@ -56,7 +56,7 @@ if (Test-Path $Hwh) {
 $timingLine = Extract-Wns $Timing
 
 $lines = @()
-$lines += "# PYNQ-Z1 DIANSAI2 AD9102 + AD9767 Overlay Report"
+$lines += "# PYNQ-Z1 DIANSAI2 AD9767 Overlay Report"
 $lines += ""
 $lines += "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 $lines += ""
@@ -67,7 +67,6 @@ $lines += "|---|---|---:|---|"
 $lines += FileRow $Bit
 $lines += FileRow $Hwh
 $lines += FileRow (Join-Path $Root "pynq\pynqz1_diansai2_ad9767_test.ipynb")
-$lines += FileRow (Join-Path $Root "pynq\lemon_pynqz1_ad9102.py")
 $lines += FileRow (Join-Path $Root "pynq\pynqz1_diansai2_ad9767.py")
 $lines += ""
 $lines += "## Address Map"
@@ -82,16 +81,14 @@ if ($ipRows.Count -gt 0) {
     $lines += "| IP | Base | Range |"
     $lines += "|---|---:|---:|"
     $lines += '| `led_ctrl_0` | `0x40000000` | `0x1000` |'
-    $lines += '| `ad9102_ctrl_0` | `0x40001000` | `0x1000` |'
-    $lines += '| `ad9767_ctrl_0` | `0x40002000` | `0x1000` |'
+    $lines += '| `ad9767_ctrl_0` | `0x40001000` | `0x1000` |'
 }
 $lines += ""
 $lines += "Recommended direct bindings:"
 $lines += ""
 $lines += '```python'
 $lines += "led_ip = MMIO(0x40000000, 0x1000)"
-$lines += "ad9102_ip = MMIO(0x40001000, 0x1000)"
-$lines += "ad9767_ip = MMIO(0x40002000, 0x1000)"
+$lines += "ad9767_ip = MMIO(0x40001000, 0x1000)"
 $lines += '```'
 $lines += ""
 $lines += "## AD9767 Register Contract"
