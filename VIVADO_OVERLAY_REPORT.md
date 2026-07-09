@@ -1,15 +1,15 @@
 ﻿# PYNQ-Z1 DIANSAI2 AD9767 Overlay Report
 
-Generated: 2026-07-09 17:28:38
+Generated: 2026-07-09 20:12:50
 
 ## Build Outputs
 
 | File | Status | Size | Modified |
 |---|---|---:|---|
-| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-09 17:28:23 |
-| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 168431 | 2026-07-09 17:24:44 |
-| `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 6900 | 2026-07-09 17:23:35 |
-| `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4905 | 2026-07-09 17:22:49 |
+| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-09 20:12:36 |
+| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 168431 | 2026-07-09 20:09:01 |
+| `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 6947 | 2026-07-09 19:53:16 |
+| `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 5726 | 2026-07-09 19:53:06 |
 
 ## Address Map
 
@@ -77,7 +77,7 @@ For the next performance-oriented revision, the internal DDS can be replaced by 
 Vivado timing summary line after implementation:
 
 ```text
-1.458        0.000                      0                 4650        0.034        0.000                      0                 4650        3.020        0.000                       0                  1839
+1.049        0.000                      0                 4692        0.052        0.000                      0                 4692        3.020        0.000                       0                  1859
 ```
 
 The build script fails if implemented WNS is negative.

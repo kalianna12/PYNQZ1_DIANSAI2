@@ -70,8 +70,8 @@ module ad9767_signal_axi #(
     reg [15:0] sm_gain_q14_reg;
     reg [15:0] am_depth_q14_reg;
     reg [13:0] dc_offset_reg;
-    reg [1:0]  out_a_sel_reg;
-    reg [1:0]  out_b_sel_reg;
+    reg [2:0]  out_a_sel_reg;
+    reg [2:0]  out_b_sel_reg;
     reg [31:0] sample_counter;
 
     reg [31:0] phase_acc;
@@ -106,8 +106,8 @@ module ad9767_signal_axi #(
     reg [15:0] sm_gain_q14_dac;
     reg [15:0] am_depth_q14_dac;
     reg [13:0] dc_offset_dac;
-    reg [1:0] out_a_sel_dac;
-    reg [1:0] out_b_sel_dac;
+    reg [2:0] out_a_sel_dac;
+    reg [2:0] out_b_sel_dac;
 
     wire enable_dac = ctrl_dac[0];
     wire am_enable_dac = ctrl_dac[1];
@@ -177,6 +177,8 @@ module ad9767_signal_axi #(
     reg [13:0] sd_code;
     reg [13:0] sm_code;
     reg [13:0] sout_code;
+    reg [13:0] mod_square_code;
+    reg [13:0] mod_sine_code;
 
     function [13:0] signed_to_dac;
         input signed [31:0] value;
@@ -193,12 +195,15 @@ module ad9767_signal_axi #(
     endfunction
 
     function [13:0] select_output;
-        input [1:0] sel;
+        input [2:0] sel;
         begin
             case (sel)
-            2'd0: select_output = sd_code;
-            2'd1: select_output = sm_code;
-            2'd2: select_output = sout_code;
+            3'd0: select_output = sd_code;
+            3'd1: select_output = sm_code;
+            3'd2: select_output = sout_code;
+            3'd3: select_output = dc_offset_dac;
+            3'd4: select_output = mod_square_code;
+            3'd5: select_output = mod_sine_code;
             default: select_output = dc_offset_dac;
             endcase
         end
@@ -261,7 +266,7 @@ module ad9767_signal_axi #(
             case (read_index)
             5'h00: S_AXI_RDATA <= ctrl_reg;
             5'h01: S_AXI_RDATA <= {
-                14'd0, out_b_sel_reg, out_a_sel_reg,
+                12'd0, out_b_sel_reg, out_a_sel_reg,
                 am_enable, enable, 12'd0
             };
             5'h02: S_AXI_RDATA <= carrier_fword_reg;
@@ -274,8 +279,8 @@ module ad9767_signal_axi #(
             5'h09: S_AXI_RDATA <= {16'd0, sm_gain_q14_reg};
             5'h0A: S_AXI_RDATA <= {16'd0, am_depth_q14_reg};
             5'h0B: S_AXI_RDATA <= {18'd0, dc_offset_reg};
-            5'h0C: S_AXI_RDATA <= {30'd0, out_a_sel_reg};
-            5'h0D: S_AXI_RDATA <= {30'd0, out_b_sel_reg};
+            5'h0C: S_AXI_RDATA <= {29'd0, out_a_sel_reg};
+            5'h0D: S_AXI_RDATA <= {29'd0, out_b_sel_reg};
             5'h0E: S_AXI_RDATA <= VERSION_VALUE;
             5'h0F: S_AXI_RDATA <= SAMPLE_RATE_HZ;
             5'h10: S_AXI_RDATA <= sample_counter;
@@ -301,8 +306,8 @@ module ad9767_signal_axi #(
             sm_gain_q14_reg <= 16'd8192;
             am_depth_q14_reg <= 16'd0;
             dc_offset_reg <= 14'd8192;
-            out_a_sel_reg <= 2'd0;
-            out_b_sel_reg <= 2'd1;
+            out_a_sel_reg <= 3'd0;
+            out_b_sel_reg <= 3'd1;
             config_toggle_axi <= 1'b0;
         end else if (write_enable) begin
             case (write_index)
@@ -320,8 +325,8 @@ module ad9767_signal_axi #(
             5'h09: sm_gain_q14_reg <= S_AXI_WDATA[15:0];
             5'h0A: am_depth_q14_reg <= S_AXI_WDATA[15:0];
             5'h0B: dc_offset_reg <= S_AXI_WDATA[13:0];
-            5'h0C: out_a_sel_reg <= S_AXI_WDATA[1:0];
-            5'h0D: out_b_sel_reg <= S_AXI_WDATA[1:0];
+            5'h0C: out_a_sel_reg <= S_AXI_WDATA[2:0];
+            5'h0D: out_b_sel_reg <= S_AXI_WDATA[2:0];
             default: begin
             end
             endcase
@@ -344,8 +349,8 @@ module ad9767_signal_axi #(
             sm_gain_q14_dac <= 16'd8192;
             am_depth_q14_dac <= 16'd0;
             dc_offset_dac <= 14'd8192;
-            out_a_sel_dac <= 2'd0;
-            out_b_sel_dac <= 2'd1;
+            out_a_sel_dac <= 3'd0;
+            out_b_sel_dac <= 3'd1;
         end else begin
             config_toggle_d1 <= config_toggle_axi;
             config_toggle_d2 <= config_toggle_d1;
@@ -423,6 +428,8 @@ module ad9767_signal_axi #(
             sd_code <= 14'd8192;
             sm_code <= 14'd8192;
             sout_code <= 14'd8192;
+            mod_square_code <= 14'd8192;
+            mod_sine_code <= 14'd8192;
         end else begin
             sd_carrier_s15_d1 <= sd_carrier_s15_w;
             sm_carrier_s15_d1 <= sm_carrier_s15_w;
@@ -434,13 +441,13 @@ module ad9767_signal_axi #(
             sd_env_prod_d2 <= sd_mod_s15_d1 * $signed({1'b0, am_depth_q14_dac});
             sm_env_prod_d2 <= sm_mod_s15_d1 * $signed({1'b0, am_depth_q14_dac});
 
-            sd_amp_s18_d3 <= sd_amp_prod_d2[31:14];
-            sm_amp_s18_d3 <= sm_amp_prod_d2[31:14];
+            sd_amp_s18_d3 <= $signed(sd_amp_prod_d2[31:14]);
+            sm_amp_s18_d3 <= $signed(sm_amp_prod_d2[31:14]);
             sd_env_s18_d3 <= am_enable_dac ?
-                (18'sd16384 + sd_env_prod_d2[30:13]) :
+                (18'sd16384 + $signed(sd_env_prod_d2[30:13])) :
                 18'sd16384;
             sm_env_s18_d3 <= am_enable_dac ?
-                (18'sd16384 + sm_env_prod_d2[30:13]) :
+                (18'sd16384 + $signed(sm_env_prod_d2[30:13])) :
                 18'sd16384;
 
             sd_sig_prod_d4 <= sd_amp_s18_d3 * sd_env_s18_d3;
@@ -453,6 +460,8 @@ module ad9767_signal_axi #(
             sd_code <= signed_to_dac(sd_sig_s32_d5);
             sm_code <= signed_to_dac(sm_sig_s32_d5);
             sout_code <= signed_to_dac(sout_sig_s32_d6);
+            mod_square_code <= mod_phase_acc[31] ? 14'd16383 : 14'd0;
+            mod_sine_code <= sd_mod_u14;
         end
     end
 

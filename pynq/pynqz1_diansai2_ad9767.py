@@ -32,6 +32,10 @@ OUT_SELECT = {
     "SM": 1,
     "SOUT": 2,
     "DC": 3,
+    "MOD_SQUARE": 4,
+    "MOD_SINE": 5,
+    "TRIG": 4,
+    "SYNC": 4,
 }
 
 
