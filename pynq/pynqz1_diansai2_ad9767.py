@@ -61,12 +61,31 @@ def db_atten_to_gain_q14(db):
     return gain_to_q14(gain)
 
 
+def relative_db_atten_to_gain_q14(base_gain, db):
+    gain = float(base_gain) * (10.0 ** (-float(db) / 20.0))
+    return gain_to_q14(gain)
+
+
 def depth_percent_to_q14(percent):
     return gain_to_q14(float(percent) / 100.0)
 
 
 def vrms_to_gain_q14(vrms, full_scale_vrms=1.0):
     return gain_to_q14(float(vrms) / float(full_scale_vrms))
+
+
+def estimate_am_headroom(gain_q14, depth_q14):
+    gain = float(gain_q14) / float(1 << 14)
+    depth = float(depth_q14) / float(1 << 14)
+    peak = gain * (1.0 + depth)
+    trough = gain * max(0.0, 1.0 - depth)
+    return {
+        "carrier_gain": gain,
+        "am_depth": depth,
+        "am_peak_gain": peak,
+        "am_trough_gain": trough,
+        "clips": peak > 1.0,
+    }
 
 
 class AD9767Signal:
@@ -127,9 +146,13 @@ class AD9767Signal:
         self.write(SM_PHASE, phase_deg_to_word(sm_phase_deg))
         self.write(DELAY_CARRIER_PHASE, delay_ns_to_phase_word(carrier_hz, sm_delay_ns))
         self.write(DELAY_MOD_PHASE, delay_ns_to_phase_word(2_000_000, sm_delay_ns))
-        self.write(SD_GAIN_Q14, vrms_to_gain_q14(sd_vrms, full_scale_vrms))
-        self.write(SM_GAIN_Q14, db_atten_to_gain_q14(sm_atten_db))
-        self.write(AM_DEPTH_Q14, depth_percent_to_q14(am_depth_percent))
+        sd_gain_q14 = vrms_to_gain_q14(sd_vrms, full_scale_vrms)
+        sm_gain_q14 = relative_db_atten_to_gain_q14(float(sd_vrms) / float(full_scale_vrms), sm_atten_db)
+        am_depth_q14 = depth_percent_to_q14(am_depth_percent)
+
+        self.write(SD_GAIN_Q14, sd_gain_q14)
+        self.write(SM_GAIN_Q14, sm_gain_q14)
+        self.write(AM_DEPTH_Q14, am_depth_q14)
         self.write(DC_OFFSET, 8192)
         self.set_output_select(out_a, out_b)
         self.enable(am=(mode_upper == "AM"), reset_phase=True)
@@ -139,9 +162,11 @@ class AD9767Signal:
             "mode": mode_upper,
             "carrier_fword": freq_to_fword(carrier_hz),
             "mod_fword": freq_to_fword(2_000_000),
-            "sd_gain_q14": vrms_to_gain_q14(sd_vrms, full_scale_vrms),
-            "sm_gain_q14": db_atten_to_gain_q14(sm_atten_db),
-            "am_depth_q14": depth_percent_to_q14(am_depth_percent),
+            "sd_gain_q14": sd_gain_q14,
+            "sm_gain_q14": sm_gain_q14,
+            "am_depth_q14": am_depth_q14,
+            "sd_headroom": estimate_am_headroom(sd_gain_q14, am_depth_q14),
+            "sm_headroom": estimate_am_headroom(sm_gain_q14, am_depth_q14),
             "delay_carrier_phase": delay_ns_to_phase_word(carrier_hz, sm_delay_ns),
             "delay_mod_phase": delay_ns_to_phase_word(2_000_000, sm_delay_ns),
             "sm_phase_word": phase_deg_to_word(sm_phase_deg),
