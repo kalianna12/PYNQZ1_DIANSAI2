@@ -1,0 +1,30 @@
+# Vivado / HLS generated projects
+build/
+hls/*_prj/
+.Xil/
+
+# Tool logs and journals
+*.log
+*.jou
+*.pb
+*.wdb
+*.wcfg
+*.str
+*.backup.jou
+*.backup.log
+
+# Simulation generated files
+xsim.dir/
+rtl/sim/
+rtl/sim_highspeed/
+*.vcd
+*.fst
+
+# OS / editor cache
+Thumbs.db
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc
+

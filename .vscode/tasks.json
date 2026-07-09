@@ -1,0 +1,67 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "FPGA: Build Vivado Overlay",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\Build-VivadoOverlayWithReport.ps1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "FPGA: Open Vivado Project",
+      "type": "shell",
+      "command": "G:\\VIVADO2022\\Vivado\\2022.1\\bin\\vivado.bat",
+      "args": [
+        "${workspaceFolder}\\build\\vivado\\base_add_overlay.xpr"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "FPGA: Generate RTL Report Only",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\Generate-RtlReport.ps1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "FPGA: Generate Vivado Overlay Report Only",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\Generate-VivadoOverlayReport.ps1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
+
