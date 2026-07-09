@@ -51,10 +51,11 @@ module ad9767_signal_axi #(
     localparam integer ADDR_LSB = 2;
     localparam integer REG_INDEX_BITS = 5;
 
-    localparam [31:0] VERSION_VALUE = 32'hAD976701;
+    localparam [31:0] VERSION_VALUE = 32'hAD976702;
     localparam [31:0] SAMPLE_RATE_HZ = 32'd125000000;
     localparam [31:0] DEFAULT_CARRIER_FWORD = 32'h40000000; // 31.25 MHz
     localparam [31:0] DEFAULT_MOD_FWORD = 32'd68719477;     // 2 MHz @ 125 MSPS
+    localparam [31:0] DEFAULT_SQUARE_FWORD = 32'd34359738;  // 1 MHz @ 125 MSPS
 
     reg [C_S_AXI_ADDR_WIDTH-1:0] axi_awaddr;
     reg [C_S_AXI_ADDR_WIDTH-1:0] axi_araddr;
@@ -62,6 +63,7 @@ module ad9767_signal_axi #(
     reg [31:0] ctrl_reg;
     reg [31:0] carrier_fword_reg;
     reg [31:0] mod_fword_reg;
+    reg [31:0] square_fword_reg;
     reg [31:0] sd_phase_reg;
     reg [31:0] sm_phase_reg;
     reg [31:0] delay_carrier_phase_reg;
@@ -76,6 +78,7 @@ module ad9767_signal_axi #(
 
     reg [31:0] phase_acc;
     reg [31:0] mod_phase_acc;
+    reg [31:0] square_phase_acc;
 
     wire write_enable = S_AXI_AWREADY && S_AXI_AWVALID &&
                         S_AXI_WREADY && S_AXI_WVALID;
@@ -98,6 +101,7 @@ module ad9767_signal_axi #(
     reg [31:0] ctrl_dac;
     reg [31:0] carrier_fword_dac;
     reg [31:0] mod_fword_dac;
+    reg [31:0] square_fword_dac;
     reg [31:0] sd_phase_dac;
     reg [31:0] sm_phase_dac;
     reg [31:0] delay_carrier_phase_dac;
@@ -286,6 +290,7 @@ module ad9767_signal_axi #(
             5'h10: S_AXI_RDATA <= sample_counter;
             5'h11: S_AXI_RDATA <= {sd_code, sm_code, 4'd0};
             5'h12: S_AXI_RDATA <= {sout_code, dac_a_data, 4'd0};
+            5'h13: S_AXI_RDATA <= square_fword_reg;
             default: S_AXI_RDATA <= 32'h00000000;
             endcase
         end else if (S_AXI_RVALID && S_AXI_RREADY) begin
@@ -298,6 +303,7 @@ module ad9767_signal_axi #(
             ctrl_reg <= 32'h00000001;
             carrier_fword_reg <= DEFAULT_CARRIER_FWORD;
             mod_fword_reg <= DEFAULT_MOD_FWORD;
+            square_fword_reg <= DEFAULT_SQUARE_FWORD;
             sd_phase_reg <= 32'd0;
             sm_phase_reg <= 32'd0;
             delay_carrier_phase_reg <= 32'd0;
@@ -317,6 +323,7 @@ module ad9767_signal_axi #(
             end
             5'h02: carrier_fword_reg <= S_AXI_WDATA;
             5'h03: mod_fword_reg <= S_AXI_WDATA;
+            5'h13: square_fword_reg <= S_AXI_WDATA;
             5'h04: sd_phase_reg <= S_AXI_WDATA;
             5'h05: sm_phase_reg <= S_AXI_WDATA;
             5'h06: delay_carrier_phase_reg <= S_AXI_WDATA;
@@ -341,6 +348,7 @@ module ad9767_signal_axi #(
             ctrl_dac <= 32'h00000001;
             carrier_fword_dac <= DEFAULT_CARRIER_FWORD;
             mod_fword_dac <= DEFAULT_MOD_FWORD;
+            square_fword_dac <= DEFAULT_SQUARE_FWORD;
             sd_phase_dac <= 32'd0;
             sm_phase_dac <= 32'd0;
             delay_carrier_phase_dac <= 32'd0;
@@ -359,6 +367,7 @@ module ad9767_signal_axi #(
                 ctrl_dac <= ctrl_reg;
                 carrier_fword_dac <= carrier_fword_reg;
                 mod_fword_dac <= mod_fword_reg;
+                square_fword_dac <= square_fword_reg;
                 sd_phase_dac <= sd_phase_reg;
                 sm_phase_dac <= sm_phase_reg;
                 delay_carrier_phase_dac <= delay_carrier_phase_reg;
@@ -377,6 +386,7 @@ module ad9767_signal_axi #(
         if (!dac_resetn || config_update_dac) begin
             phase_acc <= 32'd0;
             mod_phase_acc <= 32'd0;
+            square_phase_acc <= 32'd0;
             sample_counter <= 32'd0;
             carrier_addr_base_d1 <= 10'd0;
             mod_addr_base_d1 <= 10'd0;
@@ -391,6 +401,7 @@ module ad9767_signal_axi #(
         end else if (enable_dac) begin
             phase_acc <= phase_acc + carrier_fword_dac;
             mod_phase_acc <= mod_phase_acc + mod_fword_dac;
+            square_phase_acc <= square_phase_acc + square_fword_dac;
             sample_counter <= sample_counter + 1'b1;
             carrier_addr_base_d1 <= phase_acc[31:22];
             mod_addr_base_d1 <= mod_phase_acc[31:22];
@@ -460,7 +471,7 @@ module ad9767_signal_axi #(
             sd_code <= signed_to_dac(sd_sig_s32_d5);
             sm_code <= signed_to_dac(sm_sig_s32_d5);
             sout_code <= signed_to_dac(sout_sig_s32_d6);
-            mod_square_code <= mod_phase_acc[31] ? 14'd16383 : 14'd0;
+            mod_square_code <= square_phase_acc[31] ? 14'd16383 : 14'd0;
             mod_sine_code <= sd_mod_u14;
         end
     end

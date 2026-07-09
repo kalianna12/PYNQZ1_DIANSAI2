@@ -5,7 +5,7 @@ from pynq import MMIO
 AD9767_BASE = 0x40001000
 AD9767_RANGE = 0x1000
 AD9767_SAMPLE_HZ = 125_000_000
-AD9767_VERSION = 0xAD976701
+AD9767_VERSION = 0xAD976702
 
 CTRL = 0x00
 STATUS = 0x04
@@ -26,6 +26,7 @@ SAMPLE_RATE = 0x3C
 SAMPLE_COUNTER = 0x40
 DEBUG_CODES = 0x44
 DEBUG_OUT = 0x48
+SQUARE_FWORD = 0x4C
 
 OUT_SELECT = {
     "SD": 0,
@@ -33,6 +34,7 @@ OUT_SELECT = {
     "SOUT": 2,
     "DC": 3,
     "MOD_SQUARE": 4,
+    "SQUARE": 4,
     "MOD_SINE": 5,
     "TRIG": 4,
     "SYNC": 4,
@@ -112,6 +114,15 @@ class AD9767Signal:
         self.write(OUT_A_SEL, OUT_SELECT[str(a).upper()])
         self.write(OUT_B_SEL, OUT_SELECT[str(b).upper()])
 
+    def set_square_frequency(self, square_hz, reset_phase=True):
+        self.write(SQUARE_FWORD, freq_to_fword(square_hz))
+        self.enable(am=bool(self.read(CTRL) & 0x02), reset_phase=reset_phase)
+        return {
+            "square_hz": float(square_hz),
+            "square_fword": freq_to_fword(square_hz),
+            "actual_square_hz": freq_to_fword(square_hz) / float(1 << 32) * AD9767_SAMPLE_HZ,
+        }
+
     def enable(self, am=False, reset_phase=True):
         ctrl = 0x01 | (0x02 if am else 0x00) | (0x04 if reset_phase else 0x00)
         self.write(CTRL, ctrl)
@@ -133,6 +144,8 @@ class AD9767Signal:
         sm_atten_db=6.0,
         out_a="SD",
         out_b="SM",
+        mod_hz=2_000_000,
+        square_hz=1_000_000,
         full_scale_vrms=1.0,
     ):
         carrier_hz = float(carrier_hz)
@@ -145,11 +158,12 @@ class AD9767Signal:
 
         self.stop()
         self.write(CARRIER_FWORD, freq_to_fword(carrier_hz))
-        self.write(MOD_FWORD, freq_to_fword(2_000_000))
+        self.write(MOD_FWORD, freq_to_fword(mod_hz))
+        self.write(SQUARE_FWORD, freq_to_fword(square_hz))
         self.write(SD_PHASE, phase_deg_to_word(sd_phase_deg))
         self.write(SM_PHASE, phase_deg_to_word(sm_phase_deg))
         self.write(DELAY_CARRIER_PHASE, delay_ns_to_phase_word(carrier_hz, sm_delay_ns))
-        self.write(DELAY_MOD_PHASE, delay_ns_to_phase_word(2_000_000, sm_delay_ns))
+        self.write(DELAY_MOD_PHASE, delay_ns_to_phase_word(mod_hz, sm_delay_ns))
         sd_gain_q14 = vrms_to_gain_q14(sd_vrms, full_scale_vrms)
         sm_gain_q14 = relative_db_atten_to_gain_q14(float(sd_vrms) / float(full_scale_vrms), sm_atten_db)
         am_depth_q14 = depth_percent_to_q14(am_depth_percent)
@@ -163,16 +177,19 @@ class AD9767Signal:
 
         return {
             "carrier_hz": carrier_hz,
+            "mod_hz": float(mod_hz),
+            "square_hz": float(square_hz),
             "mode": mode_upper,
             "carrier_fword": freq_to_fword(carrier_hz),
-            "mod_fword": freq_to_fword(2_000_000),
+            "mod_fword": freq_to_fword(mod_hz),
+            "square_fword": freq_to_fword(square_hz),
             "sd_gain_q14": sd_gain_q14,
             "sm_gain_q14": sm_gain_q14,
             "am_depth_q14": am_depth_q14,
             "sd_headroom": estimate_am_headroom(sd_gain_q14, am_depth_q14),
             "sm_headroom": estimate_am_headroom(sm_gain_q14, am_depth_q14),
             "delay_carrier_phase": delay_ns_to_phase_word(carrier_hz, sm_delay_ns),
-            "delay_mod_phase": delay_ns_to_phase_word(2_000_000, sm_delay_ns),
+            "delay_mod_phase": delay_ns_to_phase_word(mod_hz, sm_delay_ns),
             "sm_phase_word": phase_deg_to_word(sm_phase_deg),
             "out_a": out_a,
             "out_b": out_b,
@@ -187,4 +204,5 @@ class AD9767Signal:
             "sample_counter": self.read(SAMPLE_COUNTER),
             "debug_codes": self.read(DEBUG_CODES),
             "debug_out": self.read(DEBUG_OUT),
+            "square_fword": self.read(SQUARE_FWORD),
         }

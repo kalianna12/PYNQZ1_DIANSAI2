@@ -1,15 +1,15 @@
 ﻿# PYNQ-Z1 DIANSAI2 AD9767 Overlay Report
 
-Generated: 2026-07-09 20:12:50
+Generated: 2026-07-09 20:38:05
 
 ## Build Outputs
 
 | File | Status | Size | Modified |
 |---|---|---:|---|
-| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-09 20:12:36 |
-| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 168431 | 2026-07-09 20:09:01 |
-| `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 6947 | 2026-07-09 19:53:16 |
-| `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 5726 | 2026-07-09 19:53:06 |
+| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-09 20:37:51 |
+| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 168431 | 2026-07-09 20:34:13 |
+| `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 7121 | 2026-07-09 20:32:47 |
+| `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 6473 | 2026-07-09 20:32:32 |
 
 ## Address Map
 
@@ -41,10 +41,11 @@ ad9767_ip = MMIO(0x40001000, 0x1000)
 | `0x24` | SM_GAIN_Q14 | multipath gain after attenuation, Q14 |
 | `0x28` | AM_DEPTH_Q14 | AM depth, Q14 |
 | `0x2C` | DC_OFFSET | normally 8192 |
-| `0x30` | OUT_A_SEL | 0=SD, 1=SM, 2=SOut, 3=DC |
-| `0x34` | OUT_B_SEL | 0=SD, 1=SM, 2=SOut, 3=DC |
-| `0x38` | VERSION | expected `0xAD976701` |
+| `0x30` | OUT_A_SEL | 0=SD, 1=SM, 2=SOut, 3=DC, 4=SQUARE, 5=MOD_SINE |
+| `0x34` | OUT_B_SEL | 0=SD, 1=SM, 2=SOut, 3=DC, 4=SQUARE, 5=MOD_SINE |
+| `0x38` | VERSION | expected `0xAD976702` |
 | `0x3C` | SAMPLE_RATE | expected `125000000` |
+| `0x4C` | SQUARE_FWORD | independent square-wave DDS frequency word for trigger/debug output |
 
 ## Problem-C Parameter Coverage
 
@@ -77,7 +78,7 @@ For the next performance-oriented revision, the internal DDS can be replaced by 
 Vivado timing summary line after implementation:
 
 ```text
-1.049        0.000                      0                 4692        0.052        0.000                      0                 4692        3.020        0.000                       0                  1859
+1.080        0.000                      0                 4980        0.067        0.000                      0                 4980        3.020        0.000                       0                  1955
 ```
 
 The build script fails if implemented WNS is negative.

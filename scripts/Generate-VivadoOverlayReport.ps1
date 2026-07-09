@@ -107,10 +107,11 @@ $lines += '| `0x20` | SD_GAIN_Q14 | direct gain, Q14 |'
 $lines += '| `0x24` | SM_GAIN_Q14 | multipath gain after attenuation, Q14 |'
 $lines += '| `0x28` | AM_DEPTH_Q14 | AM depth, Q14 |'
 $lines += '| `0x2C` | DC_OFFSET | normally 8192 |'
-$lines += '| `0x30` | OUT_A_SEL | 0=SD, 1=SM, 2=SOut, 3=DC |'
-$lines += '| `0x34` | OUT_B_SEL | 0=SD, 1=SM, 2=SOut, 3=DC |'
-$lines += '| `0x38` | VERSION | expected `0xAD976701` |'
+$lines += '| `0x30` | OUT_A_SEL | 0=SD, 1=SM, 2=SOut, 3=DC, 4=SQUARE, 5=MOD_SINE |'
+$lines += '| `0x34` | OUT_B_SEL | 0=SD, 1=SM, 2=SOut, 3=DC, 4=SQUARE, 5=MOD_SINE |'
+$lines += '| `0x38` | VERSION | expected `0xAD976702` |'
 $lines += '| `0x3C` | SAMPLE_RATE | expected `125000000` |'
+$lines += '| `0x4C` | SQUARE_FWORD | independent square-wave DDS frequency word for trigger/debug output |'
 $lines += ""
 $lines += "## Problem-C Parameter Coverage"
 $lines += ""
