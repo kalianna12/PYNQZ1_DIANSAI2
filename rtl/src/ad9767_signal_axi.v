@@ -1,6 +1,9 @@
 `timescale 1 ns / 1 ps
 
-module ad9767_signal_axi #(
+// Shared 200 MSPS waveform core for the MAX5885 wrapper.  The AXI contract is
+// deliberately kept compatible with the former AD9767 helper while the
+// physical wrapper expands its samples to the MAX5885 16-bit interface.
+module max5885_wave_core #(
     parameter integer C_S_AXI_DATA_WIDTH = 32,
     parameter integer C_S_AXI_ADDR_WIDTH = 7
 ) (
@@ -35,27 +38,27 @@ module ad9767_signal_axi #(
     input wire S_AXI_RREADY,
 
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 dac_clk CLK" *)
-    (* X_INTERFACE_PARAMETER = "ASSOCIATED_RESET dac_resetn, FREQ_HZ 125000000" *)
+    (* X_INTERFACE_PARAMETER = "ASSOCIATED_RESET dac_resetn, FREQ_HZ 200000000" *)
     input wire dac_clk,
     (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 dac_resetn RST" *)
     (* X_INTERFACE_PARAMETER = "POLARITY ACTIVE_LOW" *)
     input wire dac_resetn,
 
-    output reg  [13:0] dac_a_data,
+    output wire [13:0] dac_a_data,
     output wire        dac_a_clk,
     output wire        dac_a_wrt,
-    output reg  [13:0] dac_b_data,
+    output wire [13:0] dac_b_data,
     output wire        dac_b_clk,
     output wire        dac_b_wrt
 );
     localparam integer ADDR_LSB = 2;
     localparam integer REG_INDEX_BITS = 5;
 
-    localparam [31:0] VERSION_VALUE = 32'hAD976702;
-    localparam [31:0] SAMPLE_RATE_HZ = 32'd125000000;
-    localparam [31:0] DEFAULT_CARRIER_FWORD = 32'h40000000; // 31.25 MHz
-    localparam [31:0] DEFAULT_MOD_FWORD = 32'd68719477;     // 2 MHz @ 125 MSPS
-    localparam [31:0] DEFAULT_SQUARE_FWORD = 32'd34359738;  // 1 MHz @ 125 MSPS
+    localparam [31:0] VERSION_VALUE = 32'h4D353801;          // "M58" revision 1
+    localparam [31:0] SAMPLE_RATE_HZ = 32'd200000000;
+    localparam [31:0] DEFAULT_CARRIER_FWORD = 32'd644245094; // 30 MHz @ 200 MSPS
+    localparam [31:0] DEFAULT_MOD_FWORD = 32'd42949673;      // 2 MHz @ 200 MSPS
+    localparam [31:0] DEFAULT_SQUARE_FWORD = 32'd21474836;   // 1 MHz @ 200 MSPS
 
     reg [C_S_AXI_ADDR_WIDTH-1:0] axi_awaddr;
     reg [C_S_AXI_ADDR_WIDTH-1:0] axi_araddr;
@@ -165,6 +168,9 @@ module ad9767_signal_axi #(
     reg signed [14:0] sm_carrier_s15_d1;
     reg signed [14:0] sd_mod_s15_d1;
     reg signed [14:0] sm_mod_s15_d1;
+    reg [15:0] sd_gain_q14_pipe_d1;
+    reg [15:0] sm_gain_q14_pipe_d1;
+    reg [15:0] am_depth_q14_pipe_d1;
     reg signed [47:0] sd_amp_prod_d2;
     reg signed [47:0] sm_amp_prod_d2;
     reg signed [47:0] sd_env_prod_d2;
@@ -178,23 +184,24 @@ module ad9767_signal_axi #(
     reg signed [31:0] sd_sig_s32_d5;
     reg signed [31:0] sm_sig_s32_d5;
     reg signed [31:0] sout_sig_s32_d6;
+    reg signed [31:0] sd_offset_s32_d6;
+    reg signed [31:0] sm_offset_s32_d6;
+    reg signed [31:0] sout_offset_s32_d7;
     reg [13:0] sd_code;
     reg [13:0] sm_code;
     reg [13:0] sout_code;
     reg [13:0] mod_square_code;
     reg [13:0] mod_sine_code;
 
-    function [13:0] signed_to_dac;
+    function [13:0] clamp_to_dac;
         input signed [31:0] value;
-        reg signed [31:0] with_offset;
         begin
-            with_offset = value + {18'd0, dc_offset_dac};
-            if (with_offset < 32'sd0)
-                signed_to_dac = 14'd0;
-            else if (with_offset > 32'sd16383)
-                signed_to_dac = 14'd16383;
+            if (value < 32'sd0)
+                clamp_to_dac = 14'd0;
+            else if (value > 32'sd16383)
+                clamp_to_dac = 14'd16383;
             else
-                signed_to_dac = with_offset[13:0];
+                clamp_to_dac = value[13:0];
         end
     endfunction
 
@@ -423,6 +430,9 @@ module ad9767_signal_axi #(
             sm_carrier_s15_d1 <= 15'sd0;
             sd_mod_s15_d1 <= 15'sd0;
             sm_mod_s15_d1 <= 15'sd0;
+            sd_gain_q14_pipe_d1 <= 16'd8192;
+            sm_gain_q14_pipe_d1 <= 16'd8192;
+            am_depth_q14_pipe_d1 <= 16'd0;
             sd_amp_prod_d2 <= 48'sd0;
             sm_amp_prod_d2 <= 48'sd0;
             sd_env_prod_d2 <= 48'sd0;
@@ -436,6 +446,9 @@ module ad9767_signal_axi #(
             sd_sig_s32_d5 <= 32'sd0;
             sm_sig_s32_d5 <= 32'sd0;
             sout_sig_s32_d6 <= 32'sd0;
+            sd_offset_s32_d6 <= 32'sd8192;
+            sm_offset_s32_d6 <= 32'sd8192;
+            sout_offset_s32_d7 <= 32'sd8192;
             sd_code <= 14'd8192;
             sm_code <= 14'd8192;
             sout_code <= 14'd8192;
@@ -446,11 +459,16 @@ module ad9767_signal_axi #(
             sm_carrier_s15_d1 <= sm_carrier_s15_w;
             sd_mod_s15_d1 <= sd_mod_s15_w;
             sm_mod_s15_d1 <= sm_mod_s15_w;
+            // Explicit DSP input pipeline: config registers can be placed
+            // independently from the DSP48 columns at 200 MHz.
+            sd_gain_q14_pipe_d1 <= sd_gain_q14_dac;
+            sm_gain_q14_pipe_d1 <= sm_gain_q14_dac;
+            am_depth_q14_pipe_d1 <= am_depth_q14_dac;
 
-            sd_amp_prod_d2 <= sd_carrier_s15_d1 * $signed({1'b0, sd_gain_q14_dac});
-            sm_amp_prod_d2 <= sm_carrier_s15_d1 * $signed({1'b0, sm_gain_q14_dac});
-            sd_env_prod_d2 <= sd_mod_s15_d1 * $signed({1'b0, am_depth_q14_dac});
-            sm_env_prod_d2 <= sm_mod_s15_d1 * $signed({1'b0, am_depth_q14_dac});
+            sd_amp_prod_d2 <= sd_carrier_s15_d1 * $signed({1'b0, sd_gain_q14_pipe_d1});
+            sm_amp_prod_d2 <= sm_carrier_s15_d1 * $signed({1'b0, sm_gain_q14_pipe_d1});
+            sd_env_prod_d2 <= sd_mod_s15_d1 * $signed({1'b0, am_depth_q14_pipe_d1});
+            sm_env_prod_d2 <= sm_mod_s15_d1 * $signed({1'b0, am_depth_q14_pipe_d1});
 
             sd_amp_s18_d3 <= $signed(sd_amp_prod_d2[31:14]);
             sm_amp_s18_d3 <= $signed(sm_amp_prod_d2[31:14]);
@@ -468,23 +486,37 @@ module ad9767_signal_axi #(
             sm_sig_s32_d5 <= sm_sig_prod_d4 >>> 14;
             sout_sig_s32_d6 <= sd_sig_s32_d5 + sm_sig_s32_d5;
 
-            sd_code <= signed_to_dac(sd_sig_s32_d5);
-            sm_code <= signed_to_dac(sm_sig_s32_d5);
-            sout_code <= signed_to_dac(sout_sig_s32_d6);
+            // Keep the 32-bit offset add and saturation comparator in
+            // separate stages.  At 200 MHz this removes the long carry chain
+            // from the final DAC-code register path.
+            sd_offset_s32_d6 <= sd_sig_s32_d5 + $signed({18'd0, dc_offset_dac});
+            sm_offset_s32_d6 <= sm_sig_s32_d5 + $signed({18'd0, dc_offset_dac});
+            sout_offset_s32_d7 <= sout_sig_s32_d6 + $signed({18'd0, dc_offset_dac});
+
+            sd_code <= clamp_to_dac(sd_offset_s32_d6);
+            sm_code <= clamp_to_dac(sm_offset_s32_d6);
+            sout_code <= clamp_to_dac(sout_offset_s32_d7);
             mod_square_code <= square_phase_acc[31] ? 14'd16383 : 14'd0;
             mod_sine_code <= sd_mod_u14;
         end
     end
 
-    (* IOB = "TRUE" *) reg [13:0] dac_a_data_iob;
-    (* IOB = "TRUE" *) reg [13:0] dac_b_data_iob;
-
-    always @(negedge dac_clk) begin
-        dac_a_data_iob <= select_output(out_a_sel_dac);
-        dac_b_data_iob <= select_output(out_b_sel_dac);
-        dac_a_data <= dac_a_data_iob;
-        dac_b_data <= dac_b_data_iob;
+    // Select one full cycle ahead of the final falling-edge IOB register in
+    // the MAX5885 wrapper.  This keeps selection and DC paths out of the
+    // half-cycle timing budget.
+    reg [13:0] dac_a_selected_d1;
+    reg [13:0] dac_b_selected_d1;
+    always @(posedge dac_clk) begin
+        if (!dac_resetn) begin
+            dac_a_selected_d1 <= 14'd8192;
+            dac_b_selected_d1 <= 14'd8192;
+        end else begin
+            dac_a_selected_d1 <= select_output(out_a_sel_dac);
+            dac_b_selected_d1 <= select_output(out_b_sel_dac);
+        end
     end
+    assign dac_a_data = dac_a_selected_d1;
+    assign dac_b_data = dac_b_selected_d1;
 
     ODDR #(
         .DDR_CLK_EDGE("SAME_EDGE"),

@@ -14,10 +14,11 @@ set rtl_src [list \
     [file join $root_dir rtl src led_ctrl_axi.v] \
     [file join $root_dir rtl src sine_lut_1024.v] \
     [file join $root_dir rtl src ad9767_signal_axi.v] \
+    [file join $root_dir rtl src max5885_signal_axi.v] \
 ]
 set sine_mem [file join $root_dir rtl src sine_lut_1024x14.mem]
 set board_io_xdc [file join $root_dir constraints lemon_pynqz1_board_io.xdc]
-set ad9767_xdc [file join $root_dir constraints lemon_pynqz1_ad9767.xdc]
+set max5885_xdc [file join $root_dir constraints lemon_pynqz1_max5885.xdc]
 
 file mkdir $build_dir
 file mkdir $pynq_dir
@@ -45,7 +46,7 @@ if {[file exists $sine_mem]} {
     add_files -fileset sources_1 -norecurse $sine_mem
 }
 add_files -fileset constrs_1 -norecurse $board_io_xdc
-add_files -fileset constrs_1 -norecurse $ad9767_xdc
+add_files -fileset constrs_1 -norecurse $max5885_xdc
 update_ip_catalog
 
 create_bd_design $design_name
@@ -61,11 +62,19 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 \
     [get_bd_cells processing_system7_0]
 
 create_bd_cell -type module -reference led_ctrl_axi led_ctrl_0
-create_bd_cell -type module -reference ad9767_signal_axi ad9767_ctrl_0
+create_bd_cell -type module -reference max5885_signal_axi max5885_ctrl_0
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 dac_clk_wiz_0
+set_property -dict [list \
+    CONFIG.PRIM_IN_FREQ {125.000} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {200.000} \
+    CONFIG.NUM_OUT_CLKS {1} \
+    CONFIG.USE_RESET {false} \
+] [get_bd_cells dac_clk_wiz_0]
 
 foreach axi_target {
     led_ctrl_0/S_AXI
-    ad9767_ctrl_0/S_AXI
+    max5885_ctrl_0/S_AXI
 } {
     set axi_pin [get_bd_intf_pins -quiet $axi_target]
     if {[llength $axi_pin] == 0} {
@@ -98,18 +107,16 @@ foreach ext_pair {
     }
 }
 
-foreach ad9767_pin_name {
+foreach max5885_pin_name {
     dac_a_data
     dac_a_clk
-    dac_a_wrt
     dac_b_data
     dac_b_clk
-    dac_b_wrt
 } {
-    make_bd_pins_external [get_bd_pins ad9767_ctrl_0/$ad9767_pin_name]
-    set generated_port [get_bd_ports -quiet "${ad9767_pin_name}_0"]
+    make_bd_pins_external [get_bd_pins max5885_ctrl_0/$max5885_pin_name]
+    set generated_port [get_bd_ports -quiet "${max5885_pin_name}_0"]
     if {[llength $generated_port] != 0} {
-        set_property name $ad9767_pin_name $generated_port
+        set_property name $max5885_pin_name $generated_port
     }
 }
 
@@ -121,14 +128,16 @@ if {[llength $fclk0_pin] == 0} {
 
 foreach clk_target {
     led_ctrl_0/S_AXI_ACLK
-    ad9767_ctrl_0/S_AXI_ACLK
-    ad9767_ctrl_0/dac_clk
+    max5885_ctrl_0/S_AXI_ACLK
 } {
     set clk_pin [get_bd_pins -quiet $clk_target]
     if {[llength $clk_pin] != 0 && [llength [get_bd_nets -quiet -of_objects $clk_pin]] == 0} {
         connect_bd_net $fclk0_pin $clk_pin
     }
 }
+
+connect_bd_net $fclk0_pin [get_bd_pins dac_clk_wiz_0/clk_in1]
+connect_bd_net [get_bd_pins dac_clk_wiz_0/clk_out1] [get_bd_pins max5885_ctrl_0/dac_clk]
 
 set resetn_pin [get_bd_pins -quiet -hier -filter {NAME == peripheral_aresetn && DIR == O}]
 if {[llength $resetn_pin] == 0} {
@@ -139,8 +148,8 @@ set resetn_pin [lindex $resetn_pin 0]
 
 foreach rst_target {
     led_ctrl_0/S_AXI_ARESETN
-    ad9767_ctrl_0/S_AXI_ARESETN
-    ad9767_ctrl_0/dac_resetn
+    max5885_ctrl_0/S_AXI_ARESETN
+    max5885_ctrl_0/dac_resetn
 } {
     set rst_pin [get_bd_pins -quiet $rst_target]
     if {[llength $rst_pin] != 0 && [llength [get_bd_nets -quiet -of_objects $rst_pin]] == 0} {
@@ -161,10 +170,12 @@ update_compile_order -fileset sources_1
 set_property top ${design_name}_wrapper [current_fileset]
 update_compile_order -fileset sources_1
 
+# Use a short implementation pass while closing the 200 MHz architecture.
+# Once WNS is near zero, the final build can switch these back to Explore.
 set_property STEPS.PHYS_OPT_DESIGN.IS_ENABLED true [get_runs impl_1]
-set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs impl_1]
-set_property STEPS.PLACE_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
-set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
+set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE Default [get_runs impl_1]
+set_property STEPS.PLACE_DESIGN.ARGS.DIRECTIVE Default [get_runs impl_1]
+set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE Default [get_runs impl_1]
 
 launch_runs synth_1 -jobs 4
 wait_on_run synth_1

@@ -1,13 +1,13 @@
 ﻿# PYNQ-Z1 DIANSAI2 AD9767 Overlay Report
 
-Generated: 2026-07-09 20:38:05
+Generated: 2026-07-11 17:41:11
 
 ## Build Outputs
 
 | File | Status | Size | Modified |
 |---|---|---:|---|
-| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-09 20:37:51 |
-| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 168431 | 2026-07-09 20:34:13 |
+| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-11 17:41:01 |
+| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 203798 | 2026-07-11 17:37:08 |
 | `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 7121 | 2026-07-09 20:32:47 |
 | `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 6473 | 2026-07-09 20:32:32 |
 
@@ -15,7 +15,6 @@ Generated: 2026-07-09 20:38:05
 
 | IP | Base | High | PS access |
 |---|---:|---:|---|
-| `ad9767_ctrl_0` | `0x40001000` | `0x40001FFF` | direct `MMIO` |
 | `led_ctrl_0` | `0x40000000` | `0x40000FFF` | direct `MMIO` |
 
 Recommended direct bindings:
@@ -78,7 +77,7 @@ For the next performance-oriented revision, the internal DDS can be replaced by 
 Vivado timing summary line after implementation:
 
 ```text
-1.080        0.000                      0                 4980        0.067        0.000                      0                 4980        3.020        0.000                       0                  1955
+0.020        0.000                      0                 5008        0.032        0.000                      0                 5008        1.116        0.000                       0                  2065
 ```
 
 The build script fails if implemented WNS is negative.
