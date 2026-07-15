@@ -1,13 +1,13 @@
 ﻿# PYNQ-Z1 DIANSAI2 AD9767 Overlay Report
 
-Generated: 2026-07-11 17:41:11
+Generated: 2026-07-11 23:19:28
 
 ## Build Outputs
 
 | File | Status | Size | Modified |
 |---|---|---:|---|
-| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-11 17:41:01 |
-| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 203798 | 2026-07-11 17:37:08 |
+| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-11 23:19:15 |
+| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 203798 | 2026-07-11 23:15:15 |
 | `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 7121 | 2026-07-09 20:32:47 |
 | `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 6473 | 2026-07-09 20:32:32 |
 
@@ -77,7 +77,7 @@ For the next performance-oriented revision, the internal DDS can be replaced by 
 Vivado timing summary line after implementation:
 
 ```text
-0.020        0.000                      0                 5008        0.032        0.000                      0                 5008        1.116        0.000                       0                  2065
+0.026        0.000                      0                 5371        0.040        0.000                      0                 5371        1.116        0.000                       0                  2195
 ```
 
 The build script fails if implemented WNS is negative.

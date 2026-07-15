@@ -54,7 +54,7 @@ module max5885_wave_core #(
     localparam integer ADDR_LSB = 2;
     localparam integer REG_INDEX_BITS = 5;
 
-    localparam [31:0] VERSION_VALUE = 32'h4D353801;          // "M58" revision 1
+    localparam [31:0] VERSION_VALUE = 32'h4D353802;          // "M58" revision 2
     localparam [31:0] SAMPLE_RATE_HZ = 32'd200000000;
     localparam [31:0] DEFAULT_CARRIER_FWORD = 32'd644245094; // 30 MHz @ 200 MSPS
     localparam [31:0] DEFAULT_MOD_FWORD = 32'd42949673;      // 2 MHz @ 200 MSPS
@@ -77,6 +77,8 @@ module max5885_wave_core #(
     reg [13:0] dc_offset_reg;
     reg [2:0]  out_a_sel_reg;
     reg [2:0]  out_b_sel_reg;
+    reg [15:0] dac_a_gain_q14_reg;
+    reg [15:0] dac_b_gain_q14_reg;
     reg [31:0] sample_counter;
 
     reg [31:0] phase_acc;
@@ -115,6 +117,8 @@ module max5885_wave_core #(
     reg [13:0] dc_offset_dac;
     reg [2:0] out_a_sel_dac;
     reg [2:0] out_b_sel_dac;
+    reg [15:0] dac_a_gain_q14_dac;
+    reg [15:0] dac_b_gain_q14_dac;
 
     wire enable_dac = ctrl_dac[0];
     wire am_enable_dac = ctrl_dac[1];
@@ -192,6 +196,16 @@ module max5885_wave_core #(
     reg [13:0] sout_code;
     reg [13:0] mod_square_code;
     reg [13:0] mod_sine_code;
+    reg [13:0] dac_a_selected_d1;
+    reg [13:0] dac_b_selected_d1;
+    reg signed [14:0] dac_a_centered_d1;
+    reg signed [14:0] dac_b_centered_d1;
+    reg signed [30:0] dac_a_trim_prod_d2;
+    reg signed [30:0] dac_b_trim_prod_d2;
+    reg signed [31:0] dac_a_offset_s32_d3;
+    reg signed [31:0] dac_b_offset_s32_d3;
+    reg [13:0] dac_a_trimmed_d4;
+    reg [13:0] dac_b_trimmed_d4;
 
     function [13:0] clamp_to_dac;
         input signed [31:0] value;
@@ -298,6 +312,8 @@ module max5885_wave_core #(
             5'h11: S_AXI_RDATA <= {sd_code, sm_code, 4'd0};
             5'h12: S_AXI_RDATA <= {sout_code, dac_a_data, 4'd0};
             5'h13: S_AXI_RDATA <= square_fword_reg;
+            5'h14: S_AXI_RDATA <= {16'd0, dac_a_gain_q14_reg};
+            5'h15: S_AXI_RDATA <= {16'd0, dac_b_gain_q14_reg};
             default: S_AXI_RDATA <= 32'h00000000;
             endcase
         end else if (S_AXI_RVALID && S_AXI_RREADY) begin
@@ -321,6 +337,8 @@ module max5885_wave_core #(
             dc_offset_reg <= 14'd8192;
             out_a_sel_reg <= 3'd0;
             out_b_sel_reg <= 3'd1;
+            dac_a_gain_q14_reg <= 16'd16384;
+            dac_b_gain_q14_reg <= 16'd16384;
             config_toggle_axi <= 1'b0;
         end else if (write_enable) begin
             case (write_index)
@@ -341,6 +359,8 @@ module max5885_wave_core #(
             5'h0B: dc_offset_reg <= S_AXI_WDATA[13:0];
             5'h0C: out_a_sel_reg <= S_AXI_WDATA[2:0];
             5'h0D: out_b_sel_reg <= S_AXI_WDATA[2:0];
+            5'h14: dac_a_gain_q14_reg <= S_AXI_WDATA[15:0];
+            5'h15: dac_b_gain_q14_reg <= S_AXI_WDATA[15:0];
             default: begin
             end
             endcase
@@ -366,6 +386,8 @@ module max5885_wave_core #(
             dc_offset_dac <= 14'd8192;
             out_a_sel_dac <= 3'd0;
             out_b_sel_dac <= 3'd1;
+            dac_a_gain_q14_dac <= 16'd16384;
+            dac_b_gain_q14_dac <= 16'd16384;
         end else begin
             config_toggle_d1 <= config_toggle_axi;
             config_toggle_d2 <= config_toggle_d1;
@@ -385,6 +407,8 @@ module max5885_wave_core #(
                 dc_offset_dac <= dc_offset_reg;
                 out_a_sel_dac <= out_a_sel_reg;
                 out_b_sel_dac <= out_b_sel_reg;
+                dac_a_gain_q14_dac <= dac_a_gain_q14_reg;
+                dac_b_gain_q14_dac <= dac_b_gain_q14_reg;
             end
         end
     end
@@ -454,6 +478,14 @@ module max5885_wave_core #(
             sout_code <= 14'd8192;
             mod_square_code <= 14'd8192;
             mod_sine_code <= 14'd8192;
+            dac_a_centered_d1 <= 15'sd0;
+            dac_b_centered_d1 <= 15'sd0;
+            dac_a_trim_prod_d2 <= 31'sd0;
+            dac_b_trim_prod_d2 <= 31'sd0;
+            dac_a_offset_s32_d3 <= 32'sd8192;
+            dac_b_offset_s32_d3 <= 32'sd8192;
+            dac_a_trimmed_d4 <= 14'd8192;
+            dac_b_trimmed_d4 <= 14'd8192;
         end else begin
             sd_carrier_s15_d1 <= sd_carrier_s15_w;
             sm_carrier_s15_d1 <= sm_carrier_s15_w;
@@ -498,14 +530,20 @@ module max5885_wave_core #(
             sout_code <= clamp_to_dac(sout_offset_s32_d7);
             mod_square_code <= square_phase_acc[31] ? 14'd16383 : 14'd0;
             mod_sine_code <= sd_mod_u14;
+            dac_a_centered_d1 <= $signed({1'b0, dac_a_selected_d1}) - 15'sd8192;
+            dac_b_centered_d1 <= $signed({1'b0, dac_b_selected_d1}) - 15'sd8192;
+            dac_a_trim_prod_d2 <= dac_a_centered_d1 * $signed({1'b0, dac_a_gain_q14_dac});
+            dac_b_trim_prod_d2 <= dac_b_centered_d1 * $signed({1'b0, dac_b_gain_q14_dac});
+            dac_a_offset_s32_d3 <= (dac_a_trim_prod_d2 >>> 14) + $signed({18'd0, dc_offset_dac});
+            dac_b_offset_s32_d3 <= (dac_b_trim_prod_d2 >>> 14) + $signed({18'd0, dc_offset_dac});
+            dac_a_trimmed_d4 <= clamp_to_dac(dac_a_offset_s32_d3);
+            dac_b_trimmed_d4 <= clamp_to_dac(dac_b_offset_s32_d3);
         end
     end
 
     // Select one full cycle ahead of the final falling-edge IOB register in
     // the MAX5885 wrapper.  This keeps selection and DC paths out of the
     // half-cycle timing budget.
-    reg [13:0] dac_a_selected_d1;
-    reg [13:0] dac_b_selected_d1;
     always @(posedge dac_clk) begin
         if (!dac_resetn) begin
             dac_a_selected_d1 <= 14'd8192;
@@ -515,8 +553,8 @@ module max5885_wave_core #(
             dac_b_selected_d1 <= select_output(out_b_sel_dac);
         end
     end
-    assign dac_a_data = dac_a_selected_d1;
-    assign dac_b_data = dac_b_selected_d1;
+    assign dac_a_data = dac_a_trimmed_d4;
+    assign dac_b_data = dac_b_trimmed_d4;
 
     ODDR #(
         .DDR_CLK_EDGE("SAME_EDGE"),

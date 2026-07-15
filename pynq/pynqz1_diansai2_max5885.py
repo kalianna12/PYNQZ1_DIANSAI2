@@ -3,13 +3,14 @@ from pynq import MMIO
 MAX5885_BASE = 0x40001000
 MAX5885_RANGE = 0x1000
 MAX5885_SAMPLE_HZ = 200_000_000
-MAX5885_VERSION = 0x4D353801
+MAX5885_VERSION = 0x4D353802
 
 CTRL, STATUS, CARRIER_FWORD, MOD_FWORD = 0x00, 0x04, 0x08, 0x0C
 SD_PHASE, SM_PHASE, DELAY_CARRIER_PHASE, DELAY_MOD_PHASE = 0x10, 0x14, 0x18, 0x1C
 SD_GAIN_Q14, SM_GAIN_Q14, AM_DEPTH_Q14, DC_OFFSET = 0x20, 0x24, 0x28, 0x2C
 OUT_A_SEL, OUT_B_SEL, VERSION, SAMPLE_RATE = 0x30, 0x34, 0x38, 0x3C
 SAMPLE_COUNTER, DEBUG_CODES, DEBUG_OUT, SQUARE_FWORD = 0x40, 0x44, 0x48, 0x4C
+DAC_A_GAIN_Q14, DAC_B_GAIN_Q14 = 0x50, 0x54
 
 OUT_SELECT = {"SD": 0, "SM": 1, "SOUT": 2, "DC": 3, "SQUARE": 4,
               "MOD_SQUARE": 4, "TRIG": 4, "SYNC": 4, "MOD_SINE": 5}
@@ -35,6 +36,11 @@ class MAX5885Signal:
     def read(self, offset): return self.mmio.read(offset)
     def set_output_select(self, a="SD", b="SM"):
         self.write(OUT_A_SEL, OUT_SELECT[str(a).upper()]); self.write(OUT_B_SEL, OUT_SELECT[str(b).upper()])
+    def set_dac_output_gain(self, a_gain=1.0, b_gain=1.0, reset_phase=False):
+        """Independent A/B analog-path calibration gains; 1.0 leaves output unchanged."""
+        self.write(DAC_A_GAIN_Q14, gain_to_q14(a_gain)); self.write(DAC_B_GAIN_Q14, gain_to_q14(b_gain))
+        self.enable(bool(self.read(CTRL) & 2), reset_phase)
+        return {"a_gain": float(a_gain), "b_gain": float(b_gain), "a_q14": gain_to_q14(a_gain), "b_q14": gain_to_q14(b_gain)}
     def enable(self, am=False, reset_phase=True):
         ctrl = 1 | (2 if am else 0) | (4 if reset_phase else 0)
         self.write(CTRL, ctrl)
@@ -47,7 +53,7 @@ class MAX5885Signal:
     def configure_wireless(self, carrier_hz=35_000_000, mode="CW", sd_vrms=0.5,
                            sd_phase_deg=0.0, am_depth_percent=50.0, sm_delay_ns=80.0,
                            sm_phase_deg=0.0, sm_atten_db=6.0, out_a="SD", out_b="SM",
-                           mod_hz=2_000_000, square_hz=1_000_000, full_scale_vrms=1.0):
+                           mod_hz=2_000_000, square_hz=1_000_000, full_scale_vrms=1.0, dac_a_gain=1.0, dac_b_gain=1.0):
         if not 1.0 <= float(carrier_hz) < MAX5885_SAMPLE_HZ / 2: raise ValueError("carrier_hz must be below 100 MHz")
         mode = str(mode).upper()
         if mode not in ("CW", "AM"): raise ValueError("mode must be CW or AM")
@@ -59,8 +65,9 @@ class MAX5885Signal:
                               (DELAY_MOD_PHASE, delay_ns_to_phase_word(mod_hz, sm_delay_ns)),
                               (SD_GAIN_Q14, vrms_to_gain_q14(sd_vrms, full_scale_vrms)),
                               (SM_GAIN_Q14, relative_db_atten_to_gain_q14(float(sd_vrms)/full_scale_vrms, sm_atten_db)),
-                              (AM_DEPTH_Q14, depth_percent_to_q14(am_depth_percent)), (DC_OFFSET, 8192)): self.write(offset, value)
+                              (AM_DEPTH_Q14, depth_percent_to_q14(am_depth_percent)), (DC_OFFSET, 8192),
+                              (DAC_A_GAIN_Q14, gain_to_q14(dac_a_gain)), (DAC_B_GAIN_Q14, gain_to_q14(dac_b_gain))): self.write(offset, value)
         self.set_output_select(out_a, out_b); self.enable(mode == "AM", True)
-        return {"mode": mode, "carrier_hz": float(carrier_hz), "actual_carrier_hz": actual_hz(freq_to_fword(carrier_hz)), "mod_hz": float(mod_hz), "actual_mod_hz": actual_hz(freq_to_fword(mod_hz)), "out_a": out_a, "out_b": out_b}
+        return {"mode": mode, "carrier_hz": float(carrier_hz), "actual_carrier_hz": actual_hz(freq_to_fword(carrier_hz)), "mod_hz": float(mod_hz), "actual_mod_hz": actual_hz(freq_to_fword(mod_hz)), "dac_a_gain": dac_a_gain, "dac_b_gain": dac_b_gain, "out_a": out_a, "out_b": out_b}
     def status(self):
         return {"ctrl": self.read(CTRL), "status": self.read(STATUS), "version": self.read(VERSION), "sample_rate": self.read(SAMPLE_RATE), "sample_counter": self.read(SAMPLE_COUNTER), "debug_codes": self.read(DEBUG_CODES), "debug_out": self.read(DEBUG_OUT)}
