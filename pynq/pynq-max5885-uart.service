@@ -1,0 +1,21 @@
+[Unit]
+Description=PYNQ MAX5885 UART ACM0 control
+After=multi-user.target
+
+[Service]
+Type=simple
+User=xilinx
+Group=xilinx
+SupplementaryGroups=dialout tty
+WorkingDirectory=/home/xilinx/base_add
+Environment=PYNQ_DAC_APP_DIR=/home/xilinx/base_add
+Environment=PYNQ_UART_PORT=/dev/ttyACM0
+Environment=PYNQ_UART_PARITY=N
+ExecStart=/usr/bin/python3 /home/xilinx/base_add/max5885_uart_listener_service.py
+Restart=always
+RestartSec=2
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
