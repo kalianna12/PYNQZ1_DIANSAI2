@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""PYNQ MAX5885 UART control service for the STM32 display."""
+"""PYNQ MAX5885 UART control service for the STM32 display.
+
+Uses PL AXI UartLite on expansion header W9(RX)/W10(TX), 115200 8E1.
+"""
 
 import os
 import re
@@ -13,10 +16,10 @@ from pynq import MMIO, Overlay
 
 APP_DIR = Path(os.environ.get("PYNQ_DAC_APP_DIR", Path(__file__).resolve().parent))
 BITFILE = APP_DIR / "base_add.bit"
-UART_PORT = os.environ.get("PYNQ_UART_PORT", "/dev/ttyACM0")
+UART_PORT = os.environ.get("PYNQ_UART_PORT", "/dev/ttyS0")
 UART_BAUD = 115200
 UART_TIMEOUT_S = 0.10
-UART_PARITY = os.environ.get("PYNQ_UART_PARITY", "N").upper()
+UART_PARITY = os.environ.get("PYNQ_UART_PARITY", "E").upper()
 
 LED_BASE = 0x40000000
 LED_RANGE = 0x1000

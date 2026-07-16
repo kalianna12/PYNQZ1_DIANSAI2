@@ -19,6 +19,7 @@ set rtl_src [list \
 set sine_mem [file join $root_dir rtl src sine_lut_1024x14.mem]
 set board_io_xdc [file join $root_dir constraints lemon_pynqz1_board_io.xdc]
 set max5885_xdc [file join $root_dir constraints lemon_pynqz1_max5885.xdc]
+set uart_xdc [file join $root_dir constraints lemon_pynqz1_uart.xdc]
 
 file mkdir $build_dir
 file mkdir $pynq_dir
@@ -47,6 +48,7 @@ if {[file exists $sine_mem]} {
 }
 add_files -fileset constrs_1 -norecurse $board_io_xdc
 add_files -fileset constrs_1 -norecurse $max5885_xdc
+add_files -fileset constrs_1 -norecurse $uart_xdc
 update_ip_catalog
 
 create_bd_design $design_name
@@ -64,6 +66,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 \
 create_bd_cell -type module -reference led_ctrl_axi led_ctrl_0
 create_bd_cell -type module -reference max5885_signal_axi max5885_ctrl_0
 
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 uart_0
+set_property -dict [list \
+    CONFIG.C_EXTERNAL_XIN_CLK_HZ {125000000} \
+    CONFIG.C_IS_A_16550 {16550} \
+] [get_bd_cells uart_0]
+
 create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 dac_clk_wiz_0
 set_property -dict [list \
     CONFIG.PRIM_IN_FREQ {125.000} \
@@ -75,6 +83,7 @@ set_property -dict [list \
 foreach axi_target {
     led_ctrl_0/S_AXI
     max5885_ctrl_0/S_AXI
+    uart_0/S_AXI
 } {
     set axi_pin [get_bd_intf_pins -quiet $axi_target]
     if {[llength $axi_pin] == 0} {
@@ -120,6 +129,14 @@ foreach max5885_pin_name {
     }
 }
 
+# UART (16550): create explicit ports for sin/sout only.
+# make_bd_intf_pins_external exposes all 14 UART pins including modem signals;
+# explicit ports prevent unconstrained modem ports from failing DRC.
+create_bd_port -dir I uart_sin
+create_bd_port -dir O uart_sout
+connect_bd_net [get_bd_pins uart_0/sin] [get_bd_ports uart_sin]
+connect_bd_net [get_bd_pins uart_0/sout] [get_bd_ports uart_sout]
+
 set fclk0_pin [get_bd_pins -quiet processing_system7_0/FCLK_CLK0]
 if {[llength $fclk0_pin] == 0} {
     puts "ERROR: Could not find processing_system7_0/FCLK_CLK0"
@@ -129,6 +146,7 @@ if {[llength $fclk0_pin] == 0} {
 foreach clk_target {
     led_ctrl_0/S_AXI_ACLK
     max5885_ctrl_0/S_AXI_ACLK
+    uart_0/S_AXI_ACLK
 } {
     set clk_pin [get_bd_pins -quiet $clk_target]
     if {[llength $clk_pin] != 0 && [llength [get_bd_nets -quiet -of_objects $clk_pin]] == 0} {
@@ -150,6 +168,7 @@ foreach rst_target {
     led_ctrl_0/S_AXI_ARESETN
     max5885_ctrl_0/S_AXI_ARESETN
     max5885_ctrl_0/dac_resetn
+    uart_0/S_AXI_ARESETN
 } {
     set rst_pin [get_bd_pins -quiet $rst_target]
     if {[llength $rst_pin] != 0 && [llength [get_bd_nets -quiet -of_objects $rst_pin]] == 0} {
