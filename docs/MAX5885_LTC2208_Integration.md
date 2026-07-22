@@ -39,6 +39,17 @@ directly wired to the named P2 FPGA pin.
 the ADC sampling clocks. ADC output buses are captured by a companion 130 MHz
 clock phase generated from the same MMCM, with IOB input registers.
 
+### Capture-phase requirement
+
+The LTC2208 data bus must not be sampled next to the forwarded ADC clock edge.
+At 130 MHz, the former 10-degree capture offset was only 0.214 ns and could
+capture a mixture of two adjacent ADC codes. Its visible symptom is periodic
+single-sample full-scale positive and negative spikes on both channels, even
+when the analog input is a clean sine wave. The active build script uses a
+180-degree capture clock (3.846 ns from the forwarded edge), placing the IOB
+input registers in the nominal center of the ADC data-valid window. This is a
+hardware sampling-timing correction, not a Python plotting filter.
+
 ## PS address map
 
 | IP | Base | Range | Use |
@@ -74,5 +85,5 @@ the toggle and held constant for the acquisition. Status returns through
 synchronizers. Sample data crosses only through the asynchronous AXIS FIFO.
 
 The final Vivado 2022.1 routed implementation is accepted only with positive
-WNS. The current implementation report records WNS `+0.007 ns` at 200 MHz and
-no failing setup endpoints.
+WNS. The 180-degree capture-phase build completed successfully with WNS
+`+0.024 ns`, WHS `+0.041 ns`, and zero setup/hold failing endpoints.

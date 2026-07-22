@@ -1,14 +1,14 @@
 ﻿# PYNQ-Z1 DIANSAI2 MAX5885 + LTC2208 Overlay Report
 
-Generated: 2026-07-22 18:56:45
+Generated: 2026-07-22 20:15:24
 
 ## Build Outputs
 
 | File | Status | Size | Modified |
 |---|---|---:|---|
-| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-22 18:55:05 |
-| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 394396 | 2026-07-22 18:49:22 |
-| `pynq\pynqz1_diansai2_max5885_ltc2208_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 3204 | 2026-07-22 17:26:37 |
+| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-22 20:15:08 |
+| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 394406 | 2026-07-22 20:09:06 |
+| `pynq\pynqz1_diansai2_max5885_ltc2208_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4788 | 2026-07-22 19:07:54 |
 | `pynq\pynqz1_diansai2_max5885.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 5420 | 2026-07-11 23:14:02 |
 | `pynq\pynqz1_diansai2_ltc2208.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4870 | 2026-07-22 17:28:40 |
 

@@ -43,8 +43,10 @@ set_property DRIVE 8 [get_ports {ltc_a_clk ltc_b_clk}]
 set_property SLEW FAST [get_ports {ltc_a_clk ltc_b_clk}]
 set_property IOB TRUE [get_ports {ltc_a_data[*] ltc_b_data[*]}]
 
-## ADC data are captured by the companion 130 MHz, 10-degree phase-shifted
-## clock. Apply the vendor-derived board delay window directly to that capture
+## ADC data are captured by the companion 130 MHz, 180-degree phase-shifted
+## clock.  This puts the input-register edge near the center of the expected
+## data-valid half cycle rather than directly beside the ADC clock transition.
+## Apply the vendor-derived board delay window directly to that capture
 ## clock; XDC files do not support Tcl control-flow such as `if`.
 set_input_delay -clock [get_clocks clk_out3_system_dac_clk_wiz_0_0] -min 3.1 [get_ports {ltc_a_data[*] ltc_b_data[*]}]
 set_input_delay -clock [get_clocks clk_out3_system_dac_clk_wiz_0_0] -max 4.5 [get_ports {ltc_a_data[*] ltc_b_data[*]}]

@@ -5,7 +5,10 @@ set design_name system
 set part_name xc7z020clg400-1
 set board_part www.digilentinc.com:pynq-z1:part0:1.0
 
-set build_dir [file join $root_dir build vivado]
+# Keep this clean LTC2208 build separate from the old AD9102/AD9767-generated
+# Block Design workspace. create_project -force recreates a project but does
+# not reliably remove all generated IP artifacts from an existing directory.
+set build_dir [file join $root_dir build vivado_ltc2208]
 set pynq_dir [file join $root_dir pynq]
 set board_repo_dir [file join $root_dir board_files]
 set external_board_repo_dir [file normalize "G:/FIREFOX下载/pynq-z1"]
@@ -70,6 +73,10 @@ create_bd_cell -type module -reference max5885_signal_axi max5885_ctrl_0
 create_bd_cell -type module -reference ltc2208_capture_axi ltc2208_capture_0
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 dac_clk_wiz_0
+# The LTC2208 data outputs are launched after the forwarded ADC clock.
+# Sampling at 10 degrees was only 0.214 ns from that edge at 130 MHz and
+# produced intermittent bus-transition codes. Capture at the center of the
+# nominal data-valid half cycle instead.
 set_property -dict [list \
     CONFIG.PRIM_IN_FREQ {125.000} \
     CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {200.000} \
@@ -78,7 +85,7 @@ set_property -dict [list \
     CONFIG.CLKOUT2_REQUESTED_PHASE {0.000} \
     CONFIG.CLKOUT3_USED {true} \
     CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {130.000} \
-    CONFIG.CLKOUT3_REQUESTED_PHASE {10.000} \
+      CONFIG.CLKOUT3_REQUESTED_PHASE {180.000} \
     CONFIG.NUM_OUT_CLKS {3} \
     CONFIG.USE_RESET {false} \
 ] [get_bd_cells dac_clk_wiz_0]

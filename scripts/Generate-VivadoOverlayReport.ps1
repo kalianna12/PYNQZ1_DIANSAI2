@@ -2,11 +2,11 @@ $ErrorActionPreference = "Stop"
 
 $Root = Split-Path -Parent $PSScriptRoot
 $Report = Join-Path $Root "VIVADO_OVERLAY_REPORT.md"
-$Xpr = Join-Path $Root "build\vivado\base_add_overlay.xpr"
+$Xpr = Join-Path $Root "build\vivado_ltc2208\base_add_overlay.xpr"
 $Bit = Join-Path $Root "pynq\base_add.bit"
 $Hwh = Join-Path $Root "pynq\base_add.hwh"
-$Timing = Join-Path $Root "build\vivado\base_add_overlay.runs\impl_1\system_wrapper_timing_summary_routed.rpt"
-$Util = Join-Path $Root "build\vivado\base_add_overlay.runs\impl_1\system_wrapper_utilization_placed.rpt"
+$Timing = Join-Path $Root "build\vivado_ltc2208\base_add_overlay.runs\impl_1\system_wrapper_timing_summary_routed.rpt"
+$Util = Join-Path $Root "build\vivado_ltc2208\base_add_overlay.runs\impl_1\system_wrapper_utilization_placed.rpt"
 
 function Status($ok) {
     if ($ok) { return '<span style="color:#008000;font-weight:bold;">PASS</span>' }
