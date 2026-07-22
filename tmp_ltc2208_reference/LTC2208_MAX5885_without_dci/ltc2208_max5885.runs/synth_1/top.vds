@@ -1,0 +1,377 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:14:34 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Thu Apr  3 10:57:42 2025
+# Process ID: 4224
+# Current directory: F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1
+# Command line: vivado.exe -log top.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source top.tcl
+# Log file: F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/top.vds
+# Journal file: F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1\vivado.jou
+# Running On: AYJT, OS: Windows, CPU Frequency: 3110 MHz, CPU Physical cores: 12, Host memory: 42598 MB
+#-----------------------------------------------------------
+source top.tcl -notrace
+create_project: Time (s): cpu = 00:00:02 ; elapsed = 00:00:06 . Memory (MB): peak = 551.496 ; gain = 181.762
+Command: read_checkpoint -auto_incremental -incremental F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/utils_1/imports/synth_1/top.dcp
+INFO: [Vivado 12-5825] Read reference checkpoint from F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/utils_1/imports/synth_1/top.dcp for incremental synthesis
+INFO: [Vivado 12-7989] Please ensure there are no constraint changes
+Command: synth_design -top top -part xc7z020clg484-2
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Device 21-403] Loading part xc7z020clg484-2
+INFO: [Designutils 20-5440] No compile time benefit to using incremental synthesis; A full resynthesis will be run
+INFO: [Designutils 20-4379] Flow is switching to default flow due to incremental criteria not met. If you would like to alter this behaviour and have the flow terminate instead, please set the following parameter config_implementation {autoIncr.Synth.RejectBehavior Terminate}
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 24532
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:01 ; elapsed = 00:00:04 . Memory (MB): peak = 1462.902 ; gain = 446.258
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'top' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:23]
+INFO: [Synth 8-6157] synthesizing module 'clk_wiz_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/clk_wiz_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'clk_wiz_0' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/clk_wiz_0_stub.v:6]
+WARNING: [Synth 8-689] width (16) of port connection 'clk_ADC_R' does not match port width (1) of module 'clk_wiz_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:52]
+INFO: [Synth 8-6157] synthesizing module 'LTC_2208' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/LTC_2208.v:1]
+INFO: [Synth 8-6155] done synthesizing module 'LTC_2208' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/LTC_2208.v:1]
+WARNING: [Synth 8-689] width (16) of port connection 'adc_dci' does not match port width (1) of module 'LTC_2208' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:64]
+INFO: [Synth 8-6157] synthesizing module 'max5885' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/max5885.v:23]
+INFO: [Synth 8-6157] synthesizing module 'dds_compiler_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/dds_compiler_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'dds_compiler_0' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/dds_compiler_0_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'blk_mem_gen_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/blk_mem_gen_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'blk_mem_gen_0' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/blk_mem_gen_0_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'sin_sweep' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/sin_sweep.v:21]
+WARNING: [Synth 8-689] width (32) of port connection 'm_axis_phase_tdata' does not match port width (48) of module 'dds_compiler_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/sin_sweep.v:169]
+INFO: [Synth 8-6155] done synthesizing module 'sin_sweep' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/sin_sweep.v:21]
+INFO: [Synth 8-6155] done synthesizing module 'max5885' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/max5885.v:23]
+INFO: [Synth 8-6157] synthesizing module 'tiaofu' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/tiaofu.v:23]
+INFO: [Synth 8-6157] synthesizing module 'fixed2floating_1' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/fixed2floating_1_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'fixed2floating_1' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/fixed2floating_1_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'fixed2floating_B' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/fixed2floating_B_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'fixed2floating_B' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/fixed2floating_B_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'floating_point_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/floating_point_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'floating_point_0' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/floating_point_0_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'floating2fixed_1' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/floating2fixed_1_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'floating2fixed_1' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/floating2fixed_1_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'tiaofu' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/tiaofu.v:23]
+INFO: [Synth 8-6157] synthesizing module 'vio_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/vio_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'vio_0' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/vio_0_stub.v:6]
+WARNING: [Synth 8-4446] all outputs are unconnected for this instance and logic may be removed [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:130]
+INFO: [Synth 8-6157] synthesizing module 'ila_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/ila_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'ila_0' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/.Xil/Vivado-4224-AYJT/realtime/ila_0_stub.v:6]
+WARNING: [Synth 8-689] width (16) of port connection 'clk' does not match port width (1) of module 'ila_0' [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:131]
+INFO: [Synth 8-6155] done synthesizing module 'top' (0#1) [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:23]
+WARNING: [Synth 8-6014] Unused sequential element m_data_cos_reg was removed.  [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/sin_sweep.v:176]
+WARNING: [Synth 8-7137] Register STATE_reg in module sin_sweep has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/sin_sweep.v:70]
+WARNING: [Synth 8-7137] Register config_data_reg_reg in module sin_sweep has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/sin_sweep.v:136]
+WARNING: [Synth 8-6014] Unused sequential element phaseacc_reg was removed.  [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/max5885.v:111]
+INFO: [Synth 8-6071] Mark debug on the nets applies keep_hierarchy on instance 'u_vio_0'. This will prevent further optimization [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:109]
+INFO: [Synth 8-6071] Mark debug on the nets applies keep_hierarchy on instance 'u_tiaofu'. This will prevent further optimization [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:100]
+INFO: [Synth 8-6071] Mark debug on the nets applies keep_hierarchy on instance 'U_max5885'. This will prevent further optimization [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:76]
+INFO: [Synth 8-6071] Mark debug on the nets applies keep_hierarchy on instance 'U_LTC_2208'. This will prevent further optimization [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:62]
+INFO: [Synth 8-6071] Mark debug on the nets applies keep_hierarchy on instance 'adc_ila_0'. This will prevent further optimization [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/sources_1/new/top.v:130]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:06 . Memory (MB): peak = 1574.465 ; gain = 557.820
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:02 ; elapsed = 00:00:06 . Memory (MB): peak = 1592.352 ; gain = 575.707
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:02 ; elapsed = 00:00:06 . Memory (MB): peak = 1592.352 ; gain = 575.707
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.012 . Memory (MB): peak = 1592.352 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/fixed2floating_B/fixed2floating_B/floating2fixed_b_in_context.xdc] for cell 'u_tiaofu/B_floating2fixed_tb'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/fixed2floating_B/fixed2floating_B/floating2fixed_b_in_context.xdc] for cell 'u_tiaofu/B_floating2fixed_tb'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/dds_compiler_0/dds_compiler_0/dds_compiler_0_in_context.xdc] for cell 'U_max5885/U_sin_sweep/U_dds_compiler_0_for_sweep'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/dds_compiler_0/dds_compiler_0/dds_compiler_0_in_context.xdc] for cell 'U_max5885/U_sin_sweep/U_dds_compiler_0_for_sweep'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/dds_compiler_0/dds_compiler_0/dds_compiler_0_in_context.xdc] for cell 'U_max5885/U_dds_compiler_0'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/dds_compiler_0/dds_compiler_0/dds_compiler_0_in_context.xdc] for cell 'U_max5885/U_dds_compiler_0'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/vio_0/vio_0/vio_0_in_context.xdc] for cell 'u_vio_0'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/vio_0/vio_0/vio_0_in_context.xdc] for cell 'u_vio_0'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/ila_0/ila_0/ila_0_in_context.xdc] for cell 'adc_ila_0'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/ila_0/ila_0/ila_0_in_context.xdc] for cell 'adc_ila_0'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/fixed2floating_1/fixed2floating_1/fixed2floating_1_in_context.xdc] for cell 'u_tiaofu/A_fixed2floating_tb'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/fixed2floating_1/fixed2floating_1/fixed2floating_1_in_context.xdc] for cell 'u_tiaofu/A_fixed2floating_tb'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/floating_point_0/floating_point_0/floating_point_0_in_context.xdc] for cell 'u_tiaofu/floating_point_div'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/floating_point_0/floating_point_0/floating_point_0_in_context.xdc] for cell 'u_tiaofu/floating_point_div'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/floating2fixed_1/floating2fixed_1/floating2fixed_1_in_context.xdc] for cell 'u_tiaofu/floating2fixed_tb'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/floating2fixed_1/floating2fixed_1/floating2fixed_1_in_context.xdc] for cell 'u_tiaofu/floating2fixed_tb'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0/blk_mem_gen_0_in_context.xdc] for cell 'U_max5885/u_rom_tri'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0/blk_mem_gen_0_in_context.xdc] for cell 'U_max5885/u_rom_tri'
+Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/clk_wiz_0/clk_wiz_0/clk_wiz_0_in_context.xdc] for cell 'U_clk_wiz_0'
+Finished Parsing XDC File [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/clk_wiz_0/clk_wiz_0/clk_wiz_0_in_context.xdc] for cell 'U_clk_wiz_0'
+Parsing XDC File [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc]
+WARNING: [Vivado 12-584] No ports matched 'sys_rst_n'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:2]
+WARNING: [Vivado 12-584] No ports matched 'sys_rst_n'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:36]
+CRITICAL WARNING: [Constraints 18-1056] Clock 'dac_dco' completely overrides clock 'U_clk_wiz_0/clk_DAC'.
+New: create_clock -period 5.000 -name dac_dco -waveform {0.000 2.500} [get_nets dac_dco], [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:73]
+Previous: create_generated_clock -source [get_pins U_clk_wiz_0/clk_in1] -edges {1 2 3} -edge_shift {0.000 -7.500 -15.000} [get_pins U_clk_wiz_0/clk_DAC], [f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/clk_wiz_0/clk_wiz_0/clk_wiz_0_in_context.xdc:3]
+Resolution: Review the constraint files and remove the redundant clock definition(s). If the clock constraints are not saved in a file, you can first save the constraints to an XDC file and reload the design once the constraints have been corrected.
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[3]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:79]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[3]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:80]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[3]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:81]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[1]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:83]
+WARNING: [Vivado 12-508] No pins matched 'U_max5885/U_sin_sweep/config_data_reg_reg[26]_P/CE'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:83]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[1]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:84]
+WARNING: [Vivado 12-508] No pins matched 'U_max5885/U_sin_sweep/config_data_reg_reg[23]_P/CE'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:84]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[1]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:85]
+WARNING: [Vivado 12-508] No pins matched 'U_max5885/U_sin_sweep/config_data_reg_reg[46]_P/CE'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:85]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[1]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:86]
+WARNING: [Vivado 12-508] No pins matched 'U_max5885/U_sin_sweep/config_data_reg_reg[24]_P/CE'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:86]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[1]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:87]
+WARNING: [Vivado 12-508] No pins matched 'U_max5885/U_sin_sweep/config_data_reg_reg[2]_P/CE'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:87]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[1]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:88]
+WARNING: [Vivado 12-508] No pins matched 'U_max5885/U_sin_sweep/config_data_reg_reg[21]_P/CE'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:88]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[1]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:89]
+WARNING: [Vivado 12-508] No pins matched 'U_max5885/U_sin_sweep/config_data_reg_reg[43]_P/CE'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:89]
+WARNING: [Vivado 12-508] No pins matched 'u_vio_0/inst/PROBE_OUT_ALL_INST/G_PROBE_OUT[4].PROBE_OUT0_INST/Probe_out_reg[1]/C'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:90]
+WARNING: [Vivado 12-508] No pins matched 'U_max5885/U_sin_sweep/config_data_reg_reg[22]_P/CE'. [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc:90]
+Finished Parsing XDC File [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc]
+WARNING: [Project 1-498] One or more constraints failed evaluation while reading constraint file [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc] and the design contains unresolved black boxes. These constraints will be read post-synthesis (as long as their source constraint file is marked as used_in_implementation) and should be applied correctly then. You should review the constraints listed in the file [.Xil/top_propImpl.xdc] and check the run log file to verify that these constraints were correctly applied.
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.srcs/constrs_1/new/111.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/top_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/top_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Parsing XDC File [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/dont_touch.xdc]
+Finished Parsing XDC File [F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/dont_touch.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1705.094 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 1705.094 ; gain = 0.000
+WARNING: [Timing 38-316] Clock period '10.000' specified during out-of-context synthesis of instance 'adc_ila_0' at clock pin 'clk' is different from the actual clock period '7.693', this can lead to different synthesis results.
+WARNING: [Timing 38-316] Clock period '10.000' specified during out-of-context synthesis of instance 'u_vio_0' at clock pin 'clk' is different from the actual clock period '5.000', this can lead to different synthesis results.
+WARNING: [Timing 38-316] Clock period '10.000' specified during out-of-context synthesis of instance 'U_max5885/U_dds_compiler_0' at clock pin 'aclk' is different from the actual clock period '5.000', this can lead to different synthesis results.
+WARNING: [Timing 38-316] Clock period '20.000' specified during out-of-context synthesis of instance 'U_max5885/u_rom_tri' at clock pin 'clka' is different from the actual clock period '5.000', this can lead to different synthesis results.
+WARNING: [Timing 38-316] Clock period '10.000' specified during out-of-context synthesis of instance 'U_max5885/U_sin_sweep/U_dds_compiler_0_for_sweep' at clock pin 'aclk' is different from the actual clock period '5.000', this can lead to different synthesis results.
+WARNING: [Timing 38-316] Clock period '100.000' specified during out-of-context synthesis of instance 'u_tiaofu/A_fixed2floating_tb' at clock pin 'aclk' is different from the actual clock period '5.000', this can lead to different synthesis results.
+WARNING: [Timing 38-316] Clock period '100.000' specified during out-of-context synthesis of instance 'u_tiaofu/B_floating2fixed_tb' at clock pin 'aclk' is different from the actual clock period '5.000', this can lead to different synthesis results.
+WARNING: [Timing 38-316] Clock period '100.000' specified during out-of-context synthesis of instance 'u_tiaofu/floating2fixed_tb' at clock pin 'aclk' is different from the actual clock period '5.000', this can lead to different synthesis results.
+WARNING: [Timing 38-316] Clock period '100.000' specified during out-of-context synthesis of instance 'u_tiaofu/floating_point_div' at clock pin 'aclk' is different from the actual clock period '5.000', this can lead to different synthesis results.
+INFO: [Designutils 20-5440] No compile time benefit to using incremental synthesis; A full resynthesis will be run
+INFO: [Designutils 20-4379] Flow is switching to default flow due to incremental criteria not met. If you would like to alter this behaviour and have the flow terminate instead, please set the following parameter config_implementation {autoIncr.Synth.RejectBehavior Terminate}
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:04 ; elapsed = 00:00:12 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7z020clg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:04 ; elapsed = 00:00:12 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+Applied set_property IO_BUFFER_TYPE = NONE for sys_clk_50M. (constraint file  f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/clk_wiz_0/clk_wiz_0/clk_wiz_0_in_context.xdc, line 5).
+Applied set_property CLOCK_BUFFER_TYPE = NONE for sys_clk_50M. (constraint file  f:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.gen/sources_1/ip/clk_wiz_0/clk_wiz_0/clk_wiz_0_in_context.xdc, line 6).
+Applied set_property KEEP_HIERARCHY = SOFT for u_tiaofu/B_floating2fixed_tb. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for U_max5885/U_dds_compiler_0. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for U_max5885/U_sin_sweep/U_dds_compiler_0_for_sweep. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for u_vio_0. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for adc_ila_0. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for u_tiaofu/A_fixed2floating_tb. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for u_tiaofu/floating_point_div. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for u_tiaofu/floating2fixed_tb. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for U_max5885/u_rom_tri. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for U_clk_wiz_0. (constraint file  auto generated constraint).
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:04 ; elapsed = 00:00:12 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:04 ; elapsed = 00:00:13 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   32 Bit       Adders := 1     
+	   2 Input   16 Bit       Adders := 4     
+	   2 Input   12 Bit       Adders := 1     
++---Registers : 
+	               48 Bit    Registers := 1     
+	               32 Bit    Registers := 4     
+	               16 Bit    Registers := 9     
+	               12 Bit    Registers := 1     
+	                4 Bit    Registers := 1     
+	                1 Bit    Registers := 3     
++---Muxes : 
+	   2 Input   48 Bit        Muxes := 2     
+	   2 Input   32 Bit        Muxes := 2     
+	   2 Input   16 Bit        Muxes := 2     
+	   2 Input    4 Bit        Muxes := 2     
+	   5 Input    4 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 1     
+	   6 Input    3 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 1     
+	   6 Input    1 Bit        Muxes := 3     
+	   2 Input    1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 220 (col length:60)
+BRAMs: 280 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:05 ; elapsed = 00:00:15 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:07 ; elapsed = 00:00:19 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:07 ; elapsed = 00:00:19 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:07 ; elapsed = 00:00:19 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:09 ; elapsed = 00:00:22 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:09 ; elapsed = 00:00:22 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:09 ; elapsed = 00:00:22 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:09 ; elapsed = 00:00:22 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:09 ; elapsed = 00:00:22 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:09 ; elapsed = 00:00:22 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++------+-----------------+----------+
+|      |BlackBox name    |Instances |
++------+-----------------+----------+
+|1     |dds_compiler_0   |         2|
+|2     |blk_mem_gen_0    |         1|
+|3     |fixed2floating_1 |         1|
+|4     |fixed2floating_B |         1|
+|5     |floating_point_0 |         1|
+|6     |floating2fixed_1 |         1|
+|7     |clk_wiz_0        |         1|
+|8     |vio_0            |         1|
+|9     |ila_0            |         1|
++------+-----------------+----------+
+
+Report Cell Usage: 
++------+-----------------+------+
+|      |Cell             |Count |
++------+-----------------+------+
+|1     |blk_mem_gen      |     1|
+|2     |clk_wiz          |     1|
+|3     |dds_compiler     |     1|
+|4     |dds_compiler_0   |     1|
+|5     |fixed2floating   |     1|
+|6     |fixed2floating_B |     1|
+|7     |floating2fixed   |     1|
+|8     |floating_point   |     1|
+|9     |ila              |     1|
+|10    |vio              |     1|
+|11    |CARRY4           |    49|
+|12    |LUT1             |    10|
+|13    |LUT2             |   148|
+|14    |LUT3             |    96|
+|15    |LUT4             |    80|
+|16    |LUT5             |    50|
+|17    |LUT6             |    84|
+|18    |MUXF7            |     1|
+|19    |FDCE             |   254|
+|20    |FDPE             |    48|
+|21    |FDRE             |   116|
+|22    |LDC              |    48|
+|23    |IBUF             |    18|
+|24    |OBUF             |    18|
++------+-----------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:09 ; elapsed = 00:00:22 . Memory (MB): peak = 1705.098 ; gain = 688.453
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 1 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:07 ; elapsed = 00:00:21 . Memory (MB): peak = 1705.098 ; gain = 575.707
+Synthesis Optimization Complete : Time (s): cpu = 00:00:09 ; elapsed = 00:00:22 . Memory (MB): peak = 1705.098 ; gain = 688.453
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.013 . Memory (MB): peak = 1705.098 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 98 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 1705.098 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 48 instances were transformed.
+  LDC => LDCE: 48 instances
+
+Synth Design complete | Checksum: b314c881
+INFO: [Common 17-83] Releasing license: Synthesis
+54 Infos, 41 Warnings, 1 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:10 ; elapsed = 00:00:28 . Memory (MB): peak = 1705.098 ; gain = 1115.457
+INFO: [runtcl-6] Synthesis results are not added to the cache due to CRITICAL_WARNING
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.002 . Memory (MB): peak = 1705.098 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'F:/Xilix/7020/CDelc/LTC2208_MAX5885_without_dci/ltc2208_max5885.runs/synth_1/top.dcp' has been generated.
+INFO: [runtcl-4] Executing : report_utilization -file top_utilization_synth.rpt -pb top_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Thu Apr  3 10:58:22 2025...

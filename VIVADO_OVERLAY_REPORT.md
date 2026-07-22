@@ -1,83 +1,75 @@
-﻿# PYNQ-Z1 DIANSAI2 AD9767 Overlay Report
+﻿# PYNQ-Z1 DIANSAI2 MAX5885 + LTC2208 Overlay Report
 
-Generated: 2026-07-11 23:19:28
+Generated: 2026-07-22 18:56:45
 
 ## Build Outputs
 
 | File | Status | Size | Modified |
 |---|---|---:|---|
-| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-11 23:19:15 |
-| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 203798 | 2026-07-11 23:15:15 |
-| `pynq\pynqz1_diansai2_ad9767_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 7121 | 2026-07-09 20:32:47 |
-| `pynq\pynqz1_diansai2_ad9767.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 6473 | 2026-07-09 20:32:32 |
+| `pynq\base_add.bit` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4045674 | 2026-07-22 18:55:05 |
+| `pynq\base_add.hwh` | <span style="color:#008000;font-weight:bold;">PASS</span> | 394396 | 2026-07-22 18:49:22 |
+| `pynq\pynqz1_diansai2_max5885_ltc2208_test.ipynb` | <span style="color:#008000;font-weight:bold;">PASS</span> | 3204 | 2026-07-22 17:26:37 |
+| `pynq\pynqz1_diansai2_max5885.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 5420 | 2026-07-11 23:14:02 |
+| `pynq\pynqz1_diansai2_ltc2208.py` | <span style="color:#008000;font-weight:bold;">PASS</span> | 4870 | 2026-07-22 17:28:40 |
 
 ## Address Map
 
 | IP | Base | High | PS access |
 |---|---:|---:|---|
 | `led_ctrl_0` | `0x40000000` | `0x40000FFF` | direct `MMIO` |
+| `ltc2208_capture_0` | `0x40002000` | `0x40002FFF` | direct `MMIO` |
+| `max5885_ctrl_0` | `0x40001000` | `0x40001FFF` | direct `MMIO` |
 
 Recommended direct bindings:
 
 ```python
 led_ip = MMIO(0x40000000, 0x1000)
-ad9767_ip = MMIO(0x40001000, 0x1000)
+max5885_ip = MMIO(0x40001000, 0x1000)
+ltc2208_ip = MMIO(0x40002000, 0x1000)
 ```
 
-## AD9767 Register Contract
+## LTC2208 Register Contract
 
 | Offset | Register | Meaning |
 |---:|---|---|
-| `0x00` | CTRL | bit0 enable, bit1 AM enable, bit2 phase reset pulse |
-| `0x04` | STATUS | enable/AM/output select summary |
-| `0x08` | CARRIER_FWORD | `round(fc / 125e6 * 2^32)` |
-| `0x0C` | MOD_FWORD | default 2 MHz AM modulation word |
-| `0x10` | SD_PHASE | direct-path carrier phase offset word |
-| `0x14` | SM_PHASE | multipath extra phase offset word |
-| `0x18` | DELAY_CARRIER_PHASE | carrier phase delay word from delay ns |
-| `0x1C` | DELAY_MOD_PHASE | 2 MHz modulation delay phase word |
-| `0x20` | SD_GAIN_Q14 | direct gain, Q14 |
-| `0x24` | SM_GAIN_Q14 | multipath gain after attenuation, Q14 |
-| `0x28` | AM_DEPTH_Q14 | AM depth, Q14 |
-| `0x2C` | DC_OFFSET | normally 8192 |
-| `0x30` | OUT_A_SEL | 0=SD, 1=SM, 2=SOut, 3=DC, 4=SQUARE, 5=MOD_SINE |
-| `0x34` | OUT_B_SEL | 0=SD, 1=SM, 2=SOut, 3=DC, 4=SQUARE, 5=MOD_SINE |
-| `0x38` | VERSION | expected `0xAD976702` |
-| `0x3C` | SAMPLE_RATE | expected `125000000` |
-| `0x4C` | SQUARE_FWORD | independent square-wave DDS frequency word for trigger/debug output |
+| `0x00` | CTRL | bit0 enable clocks, bit1 start toggle, bit2 clear toggle |
+| `0x04` | STATUS | busy, complete, fatal error |
+| `0x08` | SAMPLE_COUNT | requested dual-channel samples |
+| `0x14` | DECIMATION | 1 for full 130 MSPS |
+| `0x18` | CHANNEL_MASK | bit0 A, bit1 B |
+| `0x1C` | CAPTURE_MODE | 1 real ADC, 2 internal fake pattern |
+| `0x2C/0x30` | LATEST_A/LATEST_B | latest 16-bit offset-binary codes |
+| `0x34` | SAMPLE_COUNTER | captured sample count |
+| `0x3C` | ERROR_FLAGS | capture error summary |
+| `0x44` | VERSION | expected `0x22081300` |
+| `0x54/0x58` | AXIS_SENT/AXIS_STALL | stream diagnostics |
+| `0x64` | DROPPED_SAMPLE_COUNT | must remain zero |
 
-## Problem-C Parameter Coverage
+## MAX5885 and LTC2208 PS Coverage
 
 | Requirement | PS/PL support |
 |---|---|
-| Carrier 30-40 MHz, 1 MHz step | PS writes `CARRIER_FWORD` |
-| CW/AM mode | CTRL bit1 controls AM |
-| AM modulation 2 MHz | PS writes `MOD_FWORD`; helper defaults to 2 MHz |
-| SD amplitude 100 mV-1 V | PS writes calibrated `SD_GAIN_Q14` |
-| AM depth 30%-90% | PS writes `AM_DEPTH_Q14` |
-| SM delay 50-200 ns | PS converts delay to carrier/mod phase delay words |
-| SM attenuation 0-20 dB | PS writes `SM_GAIN_Q14` from dB |
-| SM phase 0-180 deg | PS writes `SM_PHASE` |
-| SD/SM/SOut test points | A/B DAC outputs independently select SD/SM/SOut |
+| MAX5885 carrier/mode/amplitude/phase | PS helper at 200 MSPS |
+| LTC2208 dual-channel samples | PS helper at 130 MSPS |
+| Capture length/channel mask/decimation | direct PS register configuration |
+| DDR transfer diagnostics | AXIS sent/stall/drop counters |
 
-## Provisional AD9767 Pins
+## LTC2208 Pins
 
-See constraints/lemon_pynqz1_ad9767.xdc. It reuses the former ADC-side right header area and should be edited after real wiring is confirmed.
+See constraints/lemon_pynqz1_ltc2208.xdc and docs/MAX5885_LTC2208_Integration.md. P2 is a direct 2x17 data-header mapping, with no jumper or AD9226 compatibility layout.
 
-## AD9767 Timing Architecture
+## Timing Architecture
 
-The high-speed DAC datapath is separated from AXI-Lite control. AXI writes update shadow registers, then the DAC clock domain commits the parameter set with a synchronized toggle.
+MAX5885 stays in its independent 200 MHz domain. LTC2208 uses 130 MHz forwarded clocks, IOB input registers, and an asynchronous 64-bit AXIS FIFO to the 125 MHz DMA domain.
 
-The current implementation uses a pipelined local phase-accumulator + BRAM sine LUT + DSP multiply/add path, with registered DAC outputs and IOB placement constraints. This keeps PS-side parameter control simple and already meets non-negative implemented WNS in the generated overlay.
-
-For the next performance-oriented revision, the internal DDS can be replaced by Vivado DDS Compiler IP plus DSP48 Multiplier IP while preserving the same AXI register contract. That would delegate phase truncation, LUT latency, DSP pipelining, and AXIS-friendly streaming to Xilinx IP.
+125 MHz control and 130 MHz capture are explicitly asynchronous: start uses a synchronized toggle, status uses synchronizers, and sample data crosses only through the asynchronous FIFO.
 
 ## Timing
 
 Vivado timing summary line after implementation:
 
 ```text
-0.026        0.000                      0                 5371        0.040        0.000                      0                 5371        1.116        0.000                       0                  2195
+0.024        0.000                      0                13954        0.041        0.000                      0                13954        1.116        0.000                       0                  5606
 ```
 
 The build script fails if implemented WNS is negative.

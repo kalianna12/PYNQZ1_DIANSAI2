@@ -1,0 +1,7 @@
+verilog xil_defaultlib  \
+"../../../../ltc2208_max5885.gen/sources_1/ip/fixed2floating_B/sim/fixed2floating_B.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

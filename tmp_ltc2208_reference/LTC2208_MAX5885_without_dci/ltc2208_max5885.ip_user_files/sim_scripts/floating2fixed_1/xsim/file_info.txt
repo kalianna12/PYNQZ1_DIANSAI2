@@ -1,0 +1,2 @@
+floating2fixed_1.v,verilog,xil_defaultlib,../../../../ltc2208_max5885.gen/sources_1/ip/floating2fixed_1/sim/floating2fixed_1.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v

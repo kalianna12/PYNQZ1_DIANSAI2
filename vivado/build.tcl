@@ -13,13 +13,13 @@ set external_board_repo_dir [file normalize "G:/FIREFOX下载/pynq-z1"]
 set rtl_src [list \
     [file join $root_dir rtl src led_ctrl_axi.v] \
     [file join $root_dir rtl src sine_lut_1024.v] \
-    [file join $root_dir rtl src ad9767_signal_axi.v] \
     [file join $root_dir rtl src max5885_signal_axi.v] \
+    [file join $root_dir rtl src ltc2208_capture_axi.v] \
 ]
 set sine_mem [file join $root_dir rtl src sine_lut_1024x14.mem]
 set board_io_xdc [file join $root_dir constraints lemon_pynqz1_board_io.xdc]
 set max5885_xdc [file join $root_dir constraints lemon_pynqz1_max5885.xdc]
-set uart_xdc [file join $root_dir constraints lemon_pynqz1_uart.xdc]
+set ltc2208_xdc [file join $root_dir constraints lemon_pynqz1_ltc2208.xdc]
 
 file mkdir $build_dir
 file mkdir $pynq_dir
@@ -48,13 +48,15 @@ if {[file exists $sine_mem]} {
 }
 add_files -fileset constrs_1 -norecurse $board_io_xdc
 add_files -fileset constrs_1 -norecurse $max5885_xdc
-add_files -fileset constrs_1 -norecurse $uart_xdc
+add_files -fileset constrs_1 -norecurse $ltc2208_xdc
+update_compile_order -fileset sources_1
 update_ip_catalog
 
 create_bd_design $design_name
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0
 set_property -dict [list \
+    CONFIG.PCW_USE_S_AXI_HP0 {1} \
     CONFIG.PCW_EN_CLK0_PORT {1} \
     CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {125.000000} \
 ] [get_bd_cells processing_system7_0]
@@ -65,25 +67,26 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 \
 
 create_bd_cell -type module -reference led_ctrl_axi led_ctrl_0
 create_bd_cell -type module -reference max5885_signal_axi max5885_ctrl_0
-
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 uart_0
-set_property -dict [list \
-    CONFIG.C_EXTERNAL_XIN_CLK_HZ {125000000} \
-    CONFIG.C_IS_A_16550 {16550} \
-] [get_bd_cells uart_0]
+create_bd_cell -type module -reference ltc2208_capture_axi ltc2208_capture_0
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 dac_clk_wiz_0
 set_property -dict [list \
     CONFIG.PRIM_IN_FREQ {125.000} \
     CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {200.000} \
-    CONFIG.NUM_OUT_CLKS {1} \
+    CONFIG.CLKOUT2_USED {true} \
+    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {130.000} \
+    CONFIG.CLKOUT2_REQUESTED_PHASE {0.000} \
+    CONFIG.CLKOUT3_USED {true} \
+    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {130.000} \
+    CONFIG.CLKOUT3_REQUESTED_PHASE {10.000} \
+    CONFIG.NUM_OUT_CLKS {3} \
     CONFIG.USE_RESET {false} \
 ] [get_bd_cells dac_clk_wiz_0]
 
 foreach axi_target {
     led_ctrl_0/S_AXI
     max5885_ctrl_0/S_AXI
-    uart_0/S_AXI
+    ltc2208_capture_0/S_AXI
 } {
     set axi_pin [get_bd_intf_pins -quiet $axi_target]
     if {[llength $axi_pin] == 0} {
@@ -93,6 +96,14 @@ foreach axi_target {
     apply_bd_automation -rule xilinx.com:bd_rule:axi4 \
         -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto"} \
         $axi_pin
+}
+
+foreach ltc_pin_name {ltc_a_data ltc_b_data ltc_a_clk ltc_b_clk} {
+    make_bd_pins_external [get_bd_pins ltc2208_capture_0/$ltc_pin_name]
+    set generated_port [get_bd_ports -quiet "${ltc_pin_name}_0"]
+    if {[llength $generated_port] != 0} {
+        set_property name $ltc_pin_name $generated_port
+    }
 }
 
 foreach led_pin_name {
@@ -129,13 +140,39 @@ foreach max5885_pin_name {
     }
 }
 
-# UART (16550): create explicit ports for sin/sout only.
-# make_bd_intf_pins_external exposes all 14 UART pins including modem signals;
-# explicit ports prevent unconstrained modem ports from failing DRC.
-create_bd_port -dir I uart_sin
-create_bd_port -dir O uart_sout
-connect_bd_net [get_bd_pins uart_0/sin] [get_bd_ports uart_sin]
-connect_bd_net [get_bd_pins uart_0/sout] [get_bd_ports uart_sout]
+set ltc_axis_pin [get_bd_intf_pins -quiet ltc2208_capture_0/M_AXIS_SAMPLE]
+if {[llength $ltc_axis_pin] == 0} {
+    puts "ERROR: Could not find LTC2208 AXI-Stream output"
+    exit 1
+}
+create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:2.0 axis_data_fifo_0
+set_property -dict [list \
+    CONFIG.TDATA_NUM_BYTES {8} \
+    CONFIG.FIFO_DEPTH {16384} \
+    CONFIG.HAS_TLAST {1} \
+    CONFIG.HAS_TKEEP {1} \
+    CONFIG.IS_ACLK_ASYNC {1} \
+] [get_bd_cells axis_data_fifo_0]
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_0
+set_property -dict [list \
+    CONFIG.c_include_sg {0} \
+    CONFIG.c_include_mm2s {0} \
+    CONFIG.c_include_s2mm {1} \
+    CONFIG.c_sg_length_width {23} \
+    CONFIG.c_m_axi_s2mm_data_width {64} \
+    CONFIG.c_s2mm_burst_size {16} \
+    CONFIG.c_s_axis_s2mm_tdata_width {64} \
+] [get_bd_cells axi_dma_0]
+connect_bd_intf_net $ltc_axis_pin [get_bd_intf_pins axis_data_fifo_0/S_AXIS]
+connect_bd_intf_net [get_bd_intf_pins axis_data_fifo_0/M_AXIS] [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
+set dma_lite_pin [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_0/M_AXI_GP0" Clk "Auto"} $dma_lite_pin
+set dma_s2mm_pin [get_bd_intf_pins axi_dma_0/M_AXI_S2MM]
+set hp0_pin [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_hp0_interconnect
+set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {1}] [get_bd_cells axi_hp0_interconnect]
+connect_bd_intf_net $dma_s2mm_pin [get_bd_intf_pins axi_hp0_interconnect/S00_AXI]
+connect_bd_intf_net [get_bd_intf_pins axi_hp0_interconnect/M00_AXI] $hp0_pin
 
 set fclk0_pin [get_bd_pins -quiet processing_system7_0/FCLK_CLK0]
 if {[llength $fclk0_pin] == 0} {
@@ -146,7 +183,10 @@ if {[llength $fclk0_pin] == 0} {
 foreach clk_target {
     led_ctrl_0/S_AXI_ACLK
     max5885_ctrl_0/S_AXI_ACLK
-    uart_0/S_AXI_ACLK
+    ltc2208_capture_0/S_AXI_ACLK
+    axi_dma_0/s_axi_lite_aclk
+    axi_dma_0/m_axi_s2mm_aclk
+    axis_data_fifo_0/m_axis_aclk
 } {
     set clk_pin [get_bd_pins -quiet $clk_target]
     if {[llength $clk_pin] != 0 && [llength [get_bd_nets -quiet -of_objects $clk_pin]] == 0} {
@@ -156,6 +196,17 @@ foreach clk_target {
 
 connect_bd_net $fclk0_pin [get_bd_pins dac_clk_wiz_0/clk_in1]
 connect_bd_net [get_bd_pins dac_clk_wiz_0/clk_out1] [get_bd_pins max5885_ctrl_0/dac_clk]
+connect_bd_net [get_bd_pins dac_clk_wiz_0/clk_out2] [get_bd_pins ltc2208_capture_0/adc_clk_130]
+connect_bd_net [get_bd_pins dac_clk_wiz_0/clk_out3] [get_bd_pins ltc2208_capture_0/adc_capture_clk_130]
+connect_bd_net [get_bd_pins dac_clk_wiz_0/locked] [get_bd_pins ltc2208_capture_0/adc_clock_locked]
+connect_bd_net [get_bd_pins dac_clk_wiz_0/clk_out3] [get_bd_pins axis_data_fifo_0/s_axis_aclk]
+
+foreach clk_pin_name {ACLK S00_ACLK M00_ACLK} {
+    set clk_pin [get_bd_pins -quiet axi_hp0_interconnect/$clk_pin_name]
+    if {[llength $clk_pin] != 0} { connect_bd_net $fclk0_pin $clk_pin }
+}
+set hp0_aclk_pin [get_bd_pins -quiet processing_system7_0/S_AXI_HP0_ACLK]
+if {[llength $hp0_aclk_pin] != 0} { connect_bd_net $fclk0_pin $hp0_aclk_pin }
 
 set resetn_pin [get_bd_pins -quiet -hier -filter {NAME == peripheral_aresetn && DIR == O}]
 if {[llength $resetn_pin] == 0} {
@@ -168,12 +219,20 @@ foreach rst_target {
     led_ctrl_0/S_AXI_ARESETN
     max5885_ctrl_0/S_AXI_ARESETN
     max5885_ctrl_0/dac_resetn
-    uart_0/S_AXI_ARESETN
+    ltc2208_capture_0/S_AXI_ARESETN
+    axi_dma_0/axi_resetn
+    axis_data_fifo_0/s_axis_aresetn
+    axis_data_fifo_0/m_axis_aresetn
 } {
     set rst_pin [get_bd_pins -quiet $rst_target]
     if {[llength $rst_pin] != 0 && [llength [get_bd_nets -quiet -of_objects $rst_pin]] == 0} {
         connect_bd_net $resetn_pin $rst_pin
     }
+}
+
+foreach rst_pin_name {ARESETN S00_ARESETN M00_ARESETN} {
+    set rst_pin [get_bd_pins -quiet axi_hp0_interconnect/$rst_pin_name]
+    if {[llength $rst_pin] != 0} { connect_bd_net $resetn_pin $rst_pin }
 }
 
 assign_bd_address
@@ -189,12 +248,13 @@ update_compile_order -fileset sources_1
 set_property top ${design_name}_wrapper [current_fileset]
 update_compile_order -fileset sources_1
 
-# Use a short implementation pass while closing the 200 MHz architecture.
-# Once WNS is near zero, the final build can switch these back to Explore.
+# Final implementation directives: the remaining 200 MHz MAX5885 boundary
+# path is routing dominated, so let placement and physical optimization compact
+# the final fabric-to-IOB hop without changing the DAC pipeline or frequency.
 set_property STEPS.PHYS_OPT_DESIGN.IS_ENABLED true [get_runs impl_1]
-set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE Default [get_runs impl_1]
-set_property STEPS.PLACE_DESIGN.ARGS.DIRECTIVE Default [get_runs impl_1]
-set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE Default [get_runs impl_1]
+set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs impl_1]
+set_property STEPS.PLACE_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
+set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
 
 launch_runs synth_1 -jobs 4
 wait_on_run synth_1
